@@ -9,18 +9,18 @@ import {
 import persistReducer from "redux-persist/es/persistReducer";
 import storage from "redux-persist/lib/storage";
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
-import toDoSlice from "../toDo/toDoSlice";
+import todoSlice from "../todo/todoSlice";
 import uiStateSlice from "../uiState/uiStateSlice";
 
 const rootReducer = combineReducers({
-  toDos: toDoSlice,
+  todos: todoSlice,
   uiState: uiStateSlice,
 });
 
 const persistConfig = {
   key: "root", // localStorage key
   storage, // localStorage
-  whitelist: ["toDos"], // target (reducer name)
+  whitelist: ["todos"], // target
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

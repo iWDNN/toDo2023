@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import styled from "styled-components";
-import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { addDetail, delToDo, IToDoState } from "../redux/toDo/toDoSlice";
+import { useAppSelector } from "../redux/hooks";
+import { ITodoState } from "../redux/todo/todoSlice";
 
 const Container = styled.div`
   width: 100%;
@@ -54,13 +54,12 @@ const AddCt = styled.div`
 `;
 
 interface IToDoProps {
-  recursiveData: IToDoState[];
+  recursiveData: ITodoState[];
 }
 interface IForm {
   title: string;
 }
-export default function ToDo({ recursiveData }: IToDoProps) {
-  const dispatch = useAppDispatch();
+export default function Todo({ recursiveData }: IToDoProps) {
   const uiTg = useAppSelector((state) => state.uiState.todoSetBtn);
 
   const [addId, setAddId] = useState("");
@@ -76,17 +75,9 @@ export default function ToDo({ recursiveData }: IToDoProps) {
       setAddId(todoId);
     }
   };
-  const onDelClick = (todoId: string) => {
-    dispatch(delToDo(todoId));
-  };
+  const onDelClick = (todoId: string) => {};
   const { register, handleSubmit } = useForm<IForm>();
   const onValid = (data: IForm) => {
-    dispatch(
-      addDetail({
-        commentId: addId,
-        addComment: data.title,
-      })
-    );
     setAddId("");
   };
   return (
@@ -97,7 +88,7 @@ export default function ToDo({ recursiveData }: IToDoProps) {
             <IsCmp>
               <i className="fa-solid fa-check" />
             </IsCmp>
-            <Title>{todo.title}</Title>
+            <Title>{todo.text}</Title>
             <SetMenu>
               {uiTg ? (
                 <div onClick={() => onDelClick(todo.id)}>
@@ -123,7 +114,7 @@ export default function ToDo({ recursiveData }: IToDoProps) {
               </form>
             </AddCt>
           )}
-          {todo.comment && <ToDo recursiveData={todo.comment} />}
+          {todo.comment && <Todo recursiveData={todo.comment} />}
         </Content>
       ))}
     </Container>

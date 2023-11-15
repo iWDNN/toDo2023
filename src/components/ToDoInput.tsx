@@ -1,54 +1,48 @@
 import React from "react";
 import { useForm } from "react-hook-form";
-import uuid from "react-uuid";
 import styled from "styled-components";
 import { useAppDispatch } from "../redux/hooks";
-import { addToDo } from "../redux/toDo/toDoSlice";
+import { addTodo } from "../redux/todo/todoSlice";
 
 const Container = styled.div`
   max-width: 1080px;
-
   display: flex;
   justify-content: center;
   align-items: center;
   flex-grow: 1;
   margin-bottom: 15px;
   form {
+    width: 80%;
     input {
       width: 100%;
       padding: 10px;
       border: 2.5px solid ${(props) => props.theme.accentColor};
       border-radius: 15px;
       outline: none;
+      &:focus {
+        border-color: #000;
+      }
     }
   }
 `;
 
 interface IForm {
-  toDo: string;
-  detail: string;
+  todo: string;
 }
-export default function ToDoInput() {
+export default function TodoInput() {
   const dispatch = useAppDispatch();
 
   const { register, handleSubmit, setValue } = useForm<IForm>();
-  const onSubmit = ({ toDo }: IForm) => {
-    dispatch(
-      addToDo({
-        id: uuid(),
-        title: toDo,
-        check: false,
-        comment: [],
-      })
-    );
-    setValue("toDo", "");
+  const onSubmit = ({ todo }: IForm) => {
+    dispatch(addTodo(todo));
+    setValue("todo", "");
   };
   return (
     <Container>
       <form onSubmit={handleSubmit(onSubmit)}>
         <input
           autoComplete="off"
-          {...register("toDo", {
+          {...register("todo", {
             required: true,
           })}
           placeholder="할 일 작성"

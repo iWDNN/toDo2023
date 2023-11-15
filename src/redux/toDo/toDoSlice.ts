@@ -1,62 +1,33 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, current, PayloadAction } from "@reduxjs/toolkit";
 import uuid from "react-uuid";
-import { RootState } from "../store";
+import { testToDos } from "../../testToDos";
+import { todoAdapter, unPack } from "../../utils";
 
-export interface IToDoState {
+export interface ITodoState {
   id: string;
-  title: string;
-  check: boolean;
-  comment: IToDoState[];
-}
-export interface IAddComment {
-  commentId: string;
-  addComment: string;
+  text: string;
+  completed: boolean;
+  comment: ITodoState[];
 }
 
-const initialState: IToDoState[] = [];
-
-export const toDoSlice = createSlice({
-  name: "exerLogs",
-  initialState,
+export const todoSlice = createSlice({
+  name: "todos",
+  initialState: [] as ITodoState[],
   reducers: {
-    addToDo: (state, action: PayloadAction<IToDoState>) => {
-      state.push(action.payload);
+    addTodo: (state, action: PayloadAction<string>) => {
+      state.push(
+        Object.assign(todoAdapter.getInitialState(), { text: action.payload })
+      );
     },
-    delToDo: (state, action: PayloadAction<string>) => {},
-
-    setToDo: (state, action: PayloadAction<IToDoState>) => {
-      const idx = state.findIndex((state) => state.id === action.payload.id);
-      state[idx] = action.payload;
+    addComment: (state, action) => {
+      unPack.add(state, "8d58b071-b5fc-db5f-fe4e-b3cd9d78a6d3", "gg");
     },
-    addDetail: (state, action: PayloadAction<IAddComment>) => {
-      const unFold = (state: IToDoState[], wish: string) => {
-        for (let todo of state as any) {
-          for (let property in todo) {
-            if (Array.isArray(todo[property]) && todo[property].length > 0) {
-              if (unFold(todo[property], wish)) {
-                return true;
-              }
-            } else if (todo.id === wish) {
-              todo.comment.push({
-                id: uuid(),
-                check: false,
-                title: action.payload.addComment,
-                comment: [],
-              });
-              return true;
-            }
-          }
-        }
-        return false;
-      };
-      unFold(state, action.payload.commentId);
+    delComment: (state, action) => {
+      unPack.delete(state, "8d58b071-b5fc-db5f-fe4e-b3cd9d78a6d3");
     },
-
-    resetToDo: () => [],
   },
 });
 
-export const { addToDo, delToDo, setToDo, resetToDo, addDetail } =
-  toDoSlice.actions;
+export const { addTodo, addComment, delComment } = todoSlice.actions;
 
-export default toDoSlice.reducer;
+export default todoSlice.reducer;

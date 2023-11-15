@@ -3,7 +3,8 @@ import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import { useAppSelector } from "../redux/hooks";
 import { setFixBtn } from "../redux/uiState/uiStateSlice";
-import ToDo from "./ToDo";
+import { testToDos } from "../testToDos";
+import Todo from "./Todo";
 const Container = styled.div`
   max-width: 1080px;
   padding: 0 10px;
@@ -23,10 +24,10 @@ const Gear = styled.div`
   border-radius: 7px;
 `;
 
-export default function ToDos() {
+export default function Todos() {
   const dispatch = useDispatch();
-  const toDoRedux = useAppSelector((state) => state.toDos);
-
+  const toDoRedux = useAppSelector((state) => state.todos);
+  const testData = testToDos;
   return (
     <Container>
       <ToDoList>
@@ -37,7 +38,7 @@ export default function ToDos() {
         >
           <i className="fa-solid fa-gear" />
         </Gear>
-        <ToDo recursiveData={toDoRedux} />
+        <Todo recursiveData={toDoRedux} />
       </ToDoList>
     </Container>
   );
