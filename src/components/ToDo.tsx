@@ -1,138 +1,131 @@
-import React, { ReactEventHandler, useState } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import uuid from "react-uuid";
 import styled from "styled-components";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { delToDo, IToDoState, setToDo } from "../redux/toDo/toDoSlice";
-
-const TempCt = styled.div`
-  margin-bottom: 10px;
-`;
+import { addDetail, delToDo, IToDoState } from "../redux/toDo/toDoSlice";
 
 const Container = styled.div`
-  display: grid;
-  grid-template-columns: 10% 75% 15%;
-  align-items: center;
-  padding: 20px;
-  border: 2px solid ${(props) => props.theme.accentColor};
-  border-radius: 15px;
-  * {
-    transition: all 0.1s linear;
-  }
+  width: 100%;
+  display: flex;
+  flex-direction: column;
 `;
-const Check = styled.div<{ isCmp: boolean }>`
-  color: ${(props) => (props.isCmp ? "#4cd137" : "#dbdbdb")};
-  font-size: 18px;
-  font-weight: 700;
-  &:hover {
-    color: ${(props) => props.theme.textColor};
-  }
-`;
-const Title = styled.div<{ isCmp: boolean }>`
-  font-size: 20px;
-  font-weight: 500;
-  letter-spacing: 0.5px;
+const Content = styled.div`
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  margin-left: 15px;
 `;
 
-const Setting = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  font-size: 14px;
-`;
-const SetOne = styled.div`
-  display: flex;
-  div:last-child {
-    margin-left: 10px;
+const IsCmp = styled.div`
+  i {
+    display: none;
+    opacity: 0.1;
   }
 `;
-const SetTwo = styled.div``;
+const Title = styled.div`
+  word-break: break-all;
+  white-space: pre-line;
+`;
+const SetMenu = styled.div``;
+
+const ShowCt = styled.div`
+  position: relative;
+  display: grid;
+  grid-template-columns: 10% 80% 10% 0%;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 2px solid ${(props) => props.theme.accentColor};
+`;
+const AddCt = styled.div`
+  width: 100%;
+  form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    input {
+      margin-top: 10px;
+      width: 80%;
+      padding: 10px;
+      outline: none;
+      border: 2px solid #eee;
+    }
+  }
+`;
 
 interface IToDoProps {
-  data: IToDoState;
+  recursiveData: IToDoState[];
 }
-
 interface IForm {
-  inputToDo: string;
+  title: string;
 }
-
-export default function ToDo({
-  data: { id, title, check, detail },
-}: IToDoProps) {
+export default function ToDo({ recursiveData }: IToDoProps) {
   const dispatch = useAppDispatch();
-  const setTg = useAppSelector((state) => state.uiState.todoSetBtn);
-  const [contentTg, setContentTg] = useState(false);
-  const [fix, setFix] = useState(false);
+  const uiTg = useAppSelector((state) => state.uiState.todoSetBtn);
 
-  const onClickCheck = (e: React.FormEvent<HTMLElement>) => {
-    e.stopPropagation();
-    dispatch(setToDo({ id, title, check: !check }));
-  };
+  const [addId, setAddId] = useState("");
 
-  const { register, setValue, handleSubmit } = useForm<IForm>();
-  const onSubmit = ({ inputToDo }: IForm) => {
-    setFix(false);
-    if (inputToDo) {
-      dispatch(
-        setToDo({
-          id,
-          title: inputToDo,
-          check,
-        })
-      );
+  const onAddClick = (todoId: string) => {
+    if (addId) {
+      if (addId === todoId) {
+        setAddId("");
+      } else {
+        setAddId(todoId);
+      }
+    } else {
+      setAddId(todoId);
     }
-
-    setValue("inputToDo", "");
+  };
+  const onDelClick = (todoId: string) => {
+    dispatch(delToDo(todoId));
+  };
+  const { register, handleSubmit } = useForm<IForm>();
+  const onValid = (data: IForm) => {
+    dispatch(
+      addDetail({
+        commentId: addId,
+        addComment: data.title,
+      })
+    );
+    setAddId("");
   };
   return (
-    <TempCt>
-      <Container
-        key={uuid()}
-        onClick={() => {
-          setContentTg((prev) => !prev);
-        }}
-      >
-        <Check isCmp={check} onClick={onClickCheck}>
-          <i className="fa-solid fa-check"></i>
-        </Check>
-        <Title isCmp={check}>
-          {fix ? (
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <input placeholder={title} {...register("inputToDo")} />
-            </form>
-          ) : (
-            title
-          )}
-        </Title>
-        <Setting>
-          {setTg ? (
-            <SetOne>
-              <div
-                onClick={() => {
-                  setFix((prev) => !prev);
-                }}
-              >
-                수정
-              </div>
-              <div
-                onClick={() => {
-                  dispatch(delToDo(id));
-                }}
-              >
-                삭제
-              </div>
-            </SetOne>
-          ) : (
-            <SetTwo>
-              {contentTg ? (
-                <i className="fa-solid fa-chevron-up" />
+    <Container>
+      {recursiveData.map((todo) => (
+        <Content key={todo.id}>
+          <ShowCt>
+            <IsCmp>
+              <i className="fa-solid fa-check" />
+            </IsCmp>
+            <Title>{todo.title}</Title>
+            <SetMenu>
+              {uiTg ? (
+                <div onClick={() => onDelClick(todo.id)}>
+                  <i className="fa-solid fa-xmark" />
+                </div>
               ) : (
-                <i className="fa-solid fa-chevron-down"></i>
+                <div onClick={() => onAddClick(todo.id)}>
+                  <i className="fa-solid fa-plus" />
+                </div>
               )}
-            </SetTwo>
+            </SetMenu>
+          </ShowCt>
+          {addId === todo.id && (
+            <AddCt>
+              <form onSubmit={handleSubmit(onValid)}>
+                <input
+                  onFocus={() => {
+                    setAddId(todo.id);
+                  }}
+                  {...register("title")}
+                  placeholder="할 일 추가하기"
+                />
+              </form>
+            </AddCt>
           )}
-        </Setting>
-      </Container>
-    </TempCt>
+          {todo.comment && <ToDo recursiveData={todo.comment} />}
+        </Content>
+      ))}
+    </Container>
   );
 }

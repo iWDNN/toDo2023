@@ -1,13 +1,12 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import uuid from "react-uuid";
-import { start } from "repl";
 import styled from "styled-components";
 import { useAppDispatch } from "../redux/hooks";
 import { addToDo } from "../redux/toDo/toDoSlice";
 
 const Container = styled.div`
-  max-width: 480px;
+  max-width: 1080px;
 
   display: flex;
   justify-content: center;
@@ -33,12 +32,13 @@ export default function ToDoInput() {
   const dispatch = useAppDispatch();
 
   const { register, handleSubmit, setValue } = useForm<IForm>();
-  const onSubmit = ({ toDo, detail }: IForm) => {
+  const onSubmit = ({ toDo }: IForm) => {
     dispatch(
       addToDo({
         id: uuid(),
         title: toDo,
         check: false,
+        comment: [],
       })
     );
     setValue("toDo", "");

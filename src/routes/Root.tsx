@@ -4,7 +4,7 @@ import ToDoInput from "../components/ToDoInput";
 import ToDos from "../components/ToDos";
 
 const Container = styled.div`
-  max-width: 480px;
+  max-width: 1080px;
   margin: 0 auto;
   padding: 0 10px;
 `;
