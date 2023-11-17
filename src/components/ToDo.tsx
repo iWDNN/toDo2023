@@ -1,8 +1,14 @@
 import React, { useState } from "react";
-import { useForm } from "react-hook-form";
 import styled from "styled-components";
-import { useAppSelector } from "../redux/hooks";
-import { ITodoState } from "../redux/todo/todoSlice";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
+import { delTodo, ITodoState } from "../redux/todo/todoSlice";
+import {
+  ISetUiPayload,
+  setCurTodo,
+  setUi,
+} from "../redux/uiState/uiStateSlice";
+import { ADD } from "../type";
+import Form from "./Form";
 
 const Container = styled.div`
   width: 100%;
@@ -16,6 +22,15 @@ const Content = styled.div`
   margin-left: 15px;
 `;
 
+const ShowCt = styled.div`
+  height: 30px;
+  position: relative;
+  display: grid;
+  grid-template-columns: 10% 80% 10% 0%; //
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 2px solid ${(props) => props.theme.accentColor};
+`;
 const IsCmp = styled.div`
   i {
     display: none;
@@ -26,60 +41,44 @@ const Title = styled.div`
   word-break: break-all;
   white-space: pre-line;
 `;
-const SetMenu = styled.div``;
-
-const ShowCt = styled.div`
-  position: relative;
-  display: grid;
-  grid-template-columns: 10% 80% 10% 0%;
+const SetMenu = styled.div`
+  display: flex;
+  justify-content: flex-end;
   align-items: center;
-  padding: 10px 0;
-  border-bottom: 2px solid ${(props) => props.theme.accentColor};
 `;
-const AddCt = styled.div`
-  width: 100%;
-  form {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    input {
-      margin-top: 10px;
-      width: 80%;
-      padding: 10px;
-      outline: none;
-      border: 2px solid #eee;
-    }
+const SetBtn = styled.div<{ isTg?: boolean }>`
+  i {
+    padding: 5px;
+    font-size: 18px;
+    font-weight: 700;
+    /* transition: all 0.2s ease-in-out; */
+    transform: ${(props) => props.isTg && "rotate(45deg)"};
   }
 `;
 
 interface IToDoProps {
   recursiveData: ITodoState[];
 }
-interface IForm {
-  title: string;
-}
 export default function Todo({ recursiveData }: IToDoProps) {
-  const uiTg = useAppSelector((state) => state.uiState.todoSetBtn);
+  const dispatch = useAppDispatch();
+  const { todoSetTg, addTg, fixTg, currentTodo } = useAppSelector(
+    (state) => state.uiState
+  );
 
-  const [addId, setAddId] = useState("");
-
-  const onAddClick = (todoId: string) => {
-    if (addId) {
-      if (addId === todoId) {
-        setAddId("");
-      } else {
-        setAddId(todoId);
-      }
-    } else {
-      setAddId(todoId);
+  const onBtnClick = (type: string, id: string) => {
+    dispatch(setCurTodo(id));
+    switch (type) {
+      case "ADD":
+        dispatch(setUi({ type, id }));
+        break;
+      case "FIX":
+        dispatch(setUi({ type, id }));
+        break;
+      case "DEL":
+        dispatch(delTodo(id));
     }
   };
-  const onDelClick = (todoId: string) => {};
-  const { register, handleSubmit } = useForm<IForm>();
-  const onValid = (data: IForm) => {
-    setAddId("");
-  };
+
   return (
     <Container>
       {recursiveData.map((todo) => (
@@ -88,32 +87,30 @@ export default function Todo({ recursiveData }: IToDoProps) {
             <IsCmp>
               <i className="fa-solid fa-check" />
             </IsCmp>
-            <Title>{todo.text}</Title>
-            <SetMenu>
-              {uiTg ? (
-                <div onClick={() => onDelClick(todo.id)}>
-                  <i className="fa-solid fa-xmark" />
-                </div>
+            <Title>
+              {fixTg && currentTodo === todo.id ? (
+                <Form />
               ) : (
-                <div onClick={() => onAddClick(todo.id)}>
-                  <i className="fa-solid fa-plus" />
-                </div>
+                <h1>{todo.text}</h1>
+              )}
+            </Title>
+            <SetMenu>
+              {todoSetTg && (
+                <>
+                  <SetBtn onClick={() => onBtnClick("ADD", todo.id)}>
+                    <i className="fa-solid fa-plus" />
+                  </SetBtn>
+                  <SetBtn onClick={() => onBtnClick("FIX", todo.id)}>
+                    <i className="fa-solid fa-pen" />
+                  </SetBtn>
+                  <SetBtn onClick={() => onBtnClick("DEL", todo.id)}>
+                    <i className="fa-solid fa-xmark" />
+                  </SetBtn>
+                </>
               )}
             </SetMenu>
           </ShowCt>
-          {addId === todo.id && (
-            <AddCt>
-              <form onSubmit={handleSubmit(onValid)}>
-                <input
-                  onFocus={() => {
-                    setAddId(todo.id);
-                  }}
-                  {...register("title")}
-                  placeholder="할 일 추가하기"
-                />
-              </form>
-            </AddCt>
-          )}
+          {addTg && currentTodo === todo.id && <Form />}
           {todo.comment && <Todo recursiveData={todo.comment} />}
         </Content>
       ))}

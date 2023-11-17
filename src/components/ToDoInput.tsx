@@ -34,7 +34,7 @@ export default function TodoInput() {
 
   const { register, handleSubmit, setValue } = useForm<IForm>();
   const onSubmit = ({ todo }: IForm) => {
-    dispatch(addTodo(todo));
+    dispatch(addTodo({ parentId: "", text: todo }));
     setValue("todo", "");
   };
   return (

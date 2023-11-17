@@ -1,7 +1,5 @@
-import { createSlice, current, PayloadAction } from "@reduxjs/toolkit";
-import uuid from "react-uuid";
-import { testToDos } from "../../testToDos";
-import { todoAdapter, unPack } from "../../utils";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { unPack } from "../../utils";
 
 export interface ITodoState {
   id: string;
@@ -14,20 +12,21 @@ export const todoSlice = createSlice({
   name: "todos",
   initialState: [] as ITodoState[],
   reducers: {
-    addTodo: (state, action: PayloadAction<string>) => {
-      state.push(
-        Object.assign(todoAdapter.getInitialState(), { text: action.payload })
-      );
+    addTodo: (
+      state,
+      action: PayloadAction<{ parentId: string; text: string }>
+    ) => {
+      unPack.add(state, action.payload);
     },
-    addComment: (state, action) => {
-      unPack.add(state, "8d58b071-b5fc-db5f-fe4e-b3cd9d78a6d3", "gg");
+    delTodo: (state, action: PayloadAction<string>) => {
+      unPack.delete(state, action.payload);
     },
-    delComment: (state, action) => {
-      unPack.delete(state, "8d58b071-b5fc-db5f-fe4e-b3cd9d78a6d3");
+    fixTodo: (state, action: PayloadAction<{ id: string; text: string }>) => {
+      unPack.fix(state, action.payload);
     },
   },
 });
 
-export const { addTodo, addComment, delComment } = todoSlice.actions;
+export const { addTodo, delTodo, fixTodo } = todoSlice.actions;
 
 export default todoSlice.reducer;

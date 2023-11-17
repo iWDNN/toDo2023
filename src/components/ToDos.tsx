@@ -2,8 +2,7 @@ import React from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import { useAppSelector } from "../redux/hooks";
-import { setFixBtn } from "../redux/uiState/uiStateSlice";
-import { testToDos } from "../testToDos";
+import { setUi } from "../redux/uiState/uiStateSlice";
 import Todo from "./Todo";
 const Container = styled.div`
   max-width: 1080px;
@@ -15,6 +14,7 @@ const ToDoList = styled.div`
   flex-direction: column;
   margin: 0 auto;
 `;
+
 const Gear = styled.div`
   position: absolute;
   font-size: 24px;
@@ -27,13 +27,14 @@ const Gear = styled.div`
 export default function Todos() {
   const dispatch = useDispatch();
   const toDoRedux = useAppSelector((state) => state.todos);
-  const testData = testToDos;
+  console.log(toDoRedux);
+
   return (
     <Container>
       <ToDoList>
         <Gear
           onClick={() => {
-            dispatch(setFixBtn());
+            dispatch(setUi({ type: "SET" }));
           }}
         >
           <i className="fa-solid fa-gear" />

@@ -1,7 +1,6 @@
 import uuid from "react-uuid";
 import { ITodoState } from "./redux/todo/todoSlice";
 
-export const a = "";
 export const todoAdapter = {
   getInitialState: () => {
     return {
@@ -13,43 +12,75 @@ export const todoAdapter = {
   },
 };
 export const unPack = {
-  add: (state: ITodoState[], id: string, text: string) => {
-    for (const todo of state as any[]) {
-      for (const [key, value] of Object.entries(todo) as any) {
-        if (Array.isArray(value) && value.length > 0) {
-          if (unPack.add(value, id, text)) {
+  add: (state: ITodoState[], payload: { parentId?: string; text: string }) => {
+    if (!payload.parentId) {
+      state.push(
+        Object.assign(todoAdapter.getInitialState(), {
+          text: payload.text,
+        })
+      );
+    } else {
+      for (const todo of state as any[]) {
+        for (const value of Object.values(todo) as any) {
+          if (value === payload.parentId) {
+            todo.comment.push(
+              Object.assign(todoAdapter.getInitialState(), {
+                text: payload.text,
+              })
+            );
             return true;
+          } else if (Array.isArray(value) && value.length > 0) {
+            if (unPack.add(value, payload)) {
+              return true;
+            }
           }
-        } else if (todo.id === id) {
-          console.log("no arr");
-          console.log("todo:", todo);
-          todo.comment.push(
-            Object.assign(todoAdapter.getInitialState(), { text })
-          );
-          return true;
         }
       }
     }
   },
-  delete: (state: ITodoState[], id: string) => {
-    let temp: ITodoState = todoAdapter.getInitialState();
+  delete: (state: ITodoState[], id: string, temp: ITodoState[] = []) => {
     for (const todo of state as any[]) {
-      temp = todo;
-      for (const [key, value] of Object.entries(todo) as any) {
-        if (Array.isArray(value) && value.length > 0) {
-          if (unPack.delete(value, id)) {
+      for (const value of Object.values(todo) as any) {
+        if (value === id) {
+          if (JSON.stringify(temp) === "[]") {
+            temp = state;
+          }
+          const findIdx = temp.findIndex((el) => el.id === id);
+          temp.splice(findIdx, 1);
+          return true;
+        } else if (Array.isArray(value) && value.length > 0) {
+          temp = value;
+          if (unPack.delete(value, id, temp)) {
             return true;
           }
-        } else if (todo.id === id) {
-          const findIdx = temp.comment.findIndex((el) => el.id === todo.id);
-          temp.comment.splice(findIdx, 1);
-          return true;
         }
       }
     }
   },
-  fix: () => {},
-  toggle: () => {},
+  fix: (
+    state: ITodoState[],
+    payload: { id: string; text: string },
+    temp: ITodoState[] = []
+  ) => {
+    for (const todo of state as any[]) {
+      for (const value of Object.values(todo) as any) {
+        if (value === payload.id) {
+          if (JSON.stringify(temp) === "[]") {
+            temp = state;
+          }
+          const findIdx = temp.findIndex((el) => el.id === payload.id);
+          temp[findIdx] = { ...temp[findIdx], text: payload.text };
+          console.log(temp);
+        } else if (Array.isArray(value) && value.length > 0) {
+          temp = value;
+          if (unPack.fix(value, payload, temp)) {
+            return true;
+          }
+        }
+      }
+    }
+  },
+  toggled: () => {},
 };
 
 // const unPackFindToDo = (todos: ITodoState[], wish: string) => {

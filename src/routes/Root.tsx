@@ -2,8 +2,6 @@ import React from "react";
 import styled from "styled-components";
 import TodoInput from "../components/TodoInput";
 import Todos from "../components/Todos";
-import { useAppDispatch } from "../redux/hooks";
-import { addComment, delComment } from "../redux/todo/todoSlice";
 
 const Container = styled.div`
   max-width: 1080px;
@@ -28,10 +26,7 @@ const TestBtn = styled.div`
 `;
 
 function Root() {
-  const dispatch = useAppDispatch();
-  const onTestClick = () => {
-    dispatch(delComment("8d58b071-b5fc-db5f-fe4e-b3cd9d78a6d3"));
-  };
+  const onTestClick = () => {};
   return (
     <Container>
       <TestBtn onClick={onTestClick}>
