@@ -1,12 +1,8 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { delTodo, ITodoState } from "../redux/todo/todoSlice";
-import {
-  ISetUiPayload,
-  setCurTodo,
-  setUi,
-} from "../redux/uiState/uiStateSlice";
+import { cmpTodo, delTodo, ITodoState } from "../redux/todo/todoSlice";
+import { setCurTodo, setUi } from "../redux/uiState/uiStateSlice";
 import { ADD } from "../type";
 import Form from "./Form";
 
@@ -31,10 +27,9 @@ const ShowCt = styled.div`
   padding: 10px 0;
   border-bottom: 2px solid ${(props) => props.theme.accentColor};
 `;
-const IsCmp = styled.div`
+const Check = styled.div<{ isCmp: boolean }>`
   i {
-    display: none;
-    opacity: 0.1;
+    color: ${(props) => (props.isCmp ? "#4cd137" : "#e1e1e1")};
   }
 `;
 const Title = styled.div`
@@ -55,18 +50,22 @@ const SetBtn = styled.div<{ isTg?: boolean }>`
     transform: ${(props) => props.isTg && "rotate(45deg)"};
   }
 `;
+const SubCt = styled.div`
+  width: 100%;
+  margin-top: 10px;
+  text-align: center;
+`;
 
 interface IToDoProps {
   recursiveData: ITodoState[];
 }
 export default function Todo({ recursiveData }: IToDoProps) {
   const dispatch = useAppDispatch();
-  const { todoSetTg, addTg, fixTg, currentTodo } = useAppSelector(
+  const { todoSetTg, addTg, fixTg, currentTodoId } = useAppSelector(
     (state) => state.uiState
   );
 
   const onBtnClick = (type: string, id: string) => {
-    dispatch(setCurTodo(id));
     switch (type) {
       case "ADD":
         dispatch(setUi({ type, id }));
@@ -77,6 +76,7 @@ export default function Todo({ recursiveData }: IToDoProps) {
       case "DEL":
         dispatch(delTodo(id));
     }
+    dispatch(setCurTodo(id));
   };
 
   return (
@@ -84,11 +84,16 @@ export default function Todo({ recursiveData }: IToDoProps) {
       {recursiveData.map((todo) => (
         <Content key={todo.id}>
           <ShowCt>
-            <IsCmp>
+            <Check
+              isCmp={todo.completed}
+              onClick={() => {
+                dispatch(cmpTodo(todo.id));
+              }}
+            >
               <i className="fa-solid fa-check" />
-            </IsCmp>
+            </Check>
             <Title>
-              {fixTg && currentTodo === todo.id ? (
+              {fixTg && currentTodoId === todo.id ? (
                 <Form />
               ) : (
                 <h1>{todo.text}</h1>
@@ -110,7 +115,7 @@ export default function Todo({ recursiveData }: IToDoProps) {
               )}
             </SetMenu>
           </ShowCt>
-          {addTg && currentTodo === todo.id && <Form />}
+          <SubCt>{addTg && currentTodoId === todo.id && <Form />}</SubCt>
           {todo.comment && <Todo recursiveData={todo.comment} />}
         </Content>
       ))}

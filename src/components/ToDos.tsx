@@ -27,7 +27,7 @@ const Gear = styled.div`
 export default function Todos() {
   const dispatch = useDispatch();
   const toDoRedux = useAppSelector((state) => state.todos);
-  console.log(toDoRedux);
+  // console.log(toDoRedux);
 
   return (
     <Container>

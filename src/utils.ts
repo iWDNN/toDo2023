@@ -70,7 +70,6 @@ export const unPack = {
           }
           const findIdx = temp.findIndex((el) => el.id === payload.id);
           temp[findIdx] = { ...temp[findIdx], text: payload.text };
-          console.log(temp);
         } else if (Array.isArray(value) && value.length > 0) {
           temp = value;
           if (unPack.fix(value, payload, temp)) {
@@ -80,7 +79,27 @@ export const unPack = {
       }
     }
   },
-  toggled: () => {},
+  toggled: (state: ITodoState[], id: string, temp: ITodoState[] = []) => {
+    for (const todo of state as any[]) {
+      for (const value of Object.values(todo) as any) {
+        if (value === id) {
+          if (JSON.stringify(temp) === "[]") {
+            temp = state;
+          }
+          const findIdx = temp.findIndex((el) => el.id === id);
+          temp[findIdx] = {
+            ...temp[findIdx],
+            completed: !temp[findIdx].completed,
+          };
+        } else if (Array.isArray(value) && value.length > 0) {
+          temp = value;
+          if (unPack.toggled(value, id, temp)) {
+            return true;
+          }
+        }
+      }
+    }
+  },
 };
 
 // const unPackFindToDo = (todos: ITodoState[], wish: string) => {

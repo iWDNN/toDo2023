@@ -4,14 +4,14 @@ export interface IuiState {
   todoSetTg: boolean;
   addTg: boolean;
   fixTg: boolean;
-  currentTodo: string;
+  currentTodoId: string;
 }
 
 const initialState: IuiState = {
   todoSetTg: false,
   addTg: false,
   fixTg: false,
-  currentTodo: "",
+  currentTodoId: "",
 };
 export interface ISetUiPayload {
   type: "ADD" | "FIX" | "DEL" | "SET";
@@ -26,19 +26,28 @@ export const uiStateSlice = createSlice({
       switch (action.payload.type) {
         case "SET":
           state.todoSetTg = !state.todoSetTg;
+          if (!state.todoSetTg) {
+            state.currentTodoId = "";
+            state.addTg = false;
+            state.fixTg = false;
+          }
           break;
         case "ADD":
-          state.addTg = !state.addTg;
+          state.currentTodoId === action.payload.id
+            ? (state.addTg = !state.addTg)
+            : (state.addTg = true);
           break;
         case "FIX":
-          state.fixTg = !state.fixTg;
+          state.currentTodoId === action.payload.id
+            ? (state.fixTg = !state.fixTg)
+            : (state.fixTg = true);
           break;
         default:
           alert("ui toggle error");
       }
     },
     setCurTodo: (state, action: PayloadAction<string>) => {
-      state.currentTodo = action.payload;
+      state.currentTodoId = action.payload;
     },
   },
 });

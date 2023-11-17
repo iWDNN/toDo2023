@@ -3,15 +3,12 @@ import styled from "styled-components";
 
 const Ct = styled.div`
   width: 100%;
+  display: inline-block;
   form {
-    display: flex;
-    justify-content: center;
-    align-items: center;
     width: 100%;
     input {
-      margin-top: 10px;
+      padding: 5px;
       width: 80%;
-      padding: 10px;
       outline: none;
       border: 2px solid #eee;
     }
@@ -21,7 +18,7 @@ export default function Form() {
   return (
     <Ct>
       <form>
-        <input />
+        <input placeholder="할 일 추가" />
       </form>
     </Ct>
   );
