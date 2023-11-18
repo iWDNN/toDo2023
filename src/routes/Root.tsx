@@ -2,6 +2,9 @@ import React from "react";
 import styled from "styled-components";
 import TodoInput from "../components/TodoInput";
 import Todos from "../components/Todos";
+import { useAppDispatch } from "../redux/hooks";
+import { resetToDos } from "../redux/todo/todoSlice";
+import { setUi } from "../redux/uiState/uiStateSlice";
 
 const Container = styled.div`
   max-width: 1080px;
@@ -19,19 +22,38 @@ const Title = styled.h1`
   font-size: 48px;
   font-weight: 700;
 `;
-const TestBtn = styled.div`
+const TestBtnGrp = styled.div`
   position: absolute;
+  display: flex;
+`;
+const TestBtn = styled.div`
   border: 2px solid black;
   padding: 3px;
 `;
 
 function Root() {
-  const onTestClick = () => {};
+  const dispatch = useAppDispatch();
   return (
     <Container>
-      <TestBtn onClick={onTestClick}>
-        <i className="fa-solid fa-play" />
-      </TestBtn>
+      <TestBtnGrp>
+        <TestBtn>
+          <i className="fa-solid fa-play" />
+        </TestBtn>
+        <TestBtn
+          onClick={() => {
+            dispatch(resetToDos());
+          }}
+        >
+          <i className="fa-solid fa-trash" />
+        </TestBtn>
+        <TestBtn
+          onClick={() => {
+            dispatch(setUi({ type: "SET" }));
+          }}
+        >
+          <i className="fa-solid fa-gear" />
+        </TestBtn>
+      </TestBtnGrp>
       <Header>
         <Title>Test Page</Title>
       </Header>

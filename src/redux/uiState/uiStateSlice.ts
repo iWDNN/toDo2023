@@ -1,17 +1,19 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { todoAdapter } from "../../utils";
+import { ITodoState } from "../todo/todoSlice";
 
 export interface IuiState {
   todoSetTg: boolean;
   addTg: boolean;
   fixTg: boolean;
-  currentTodoId: string;
+  currentTodo: ITodoState;
 }
 
 const initialState: IuiState = {
   todoSetTg: false,
   addTg: false,
   fixTg: false,
-  currentTodoId: "",
+  currentTodo: todoAdapter.getInitialState(),
 };
 export interface ISetUiPayload {
   type: "ADD" | "FIX" | "DEL" | "SET";
@@ -27,18 +29,18 @@ export const uiStateSlice = createSlice({
         case "SET":
           state.todoSetTg = !state.todoSetTg;
           if (!state.todoSetTg) {
-            state.currentTodoId = "";
+            state.currentTodo.id = "";
             state.addTg = false;
             state.fixTg = false;
           }
           break;
         case "ADD":
-          state.currentTodoId === action.payload.id
+          state.currentTodo.id === action.payload.id
             ? (state.addTg = !state.addTg)
             : (state.addTg = true);
           break;
         case "FIX":
-          state.currentTodoId === action.payload.id
+          state.currentTodo.id === action.payload.id
             ? (state.fixTg = !state.fixTg)
             : (state.fixTg = true);
           break;
@@ -46,8 +48,8 @@ export const uiStateSlice = createSlice({
           alert("ui toggle error");
       }
     },
-    setCurTodo: (state, action: PayloadAction<string>) => {
-      state.currentTodoId = action.payload;
+    setCurTodo: (state, action: PayloadAction<ITodoState>) => {
+      state.currentTodo = action.payload;
     },
   },
 });

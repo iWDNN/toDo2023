@@ -27,9 +27,11 @@ export const todoSlice = createSlice({
     cmpTodo: (state, action: PayloadAction<string>) => {
       unPack.toggled(state, action.payload);
     },
+    resetToDos: () => [],
   },
 });
 
-export const { addTodo, delTodo, fixTodo, cmpTodo } = todoSlice.actions;
+export const { addTodo, delTodo, fixTodo, cmpTodo, resetToDos } =
+  todoSlice.actions;
 
 export default todoSlice.reducer;

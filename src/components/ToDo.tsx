@@ -1,10 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { cmpTodo, delTodo, ITodoState } from "../redux/todo/todoSlice";
 import { setCurTodo, setUi } from "../redux/uiState/uiStateSlice";
-import { ADD } from "../type";
-import Form from "./Form";
+import TodoTypeInput from "./TodoTypeInput";
 
 const Container = styled.div`
   width: 100%;
@@ -61,22 +60,22 @@ interface IToDoProps {
 }
 export default function Todo({ recursiveData }: IToDoProps) {
   const dispatch = useAppDispatch();
-  const { todoSetTg, addTg, fixTg, currentTodoId } = useAppSelector(
+  const { todoSetTg, addTg, fixTg, currentTodo } = useAppSelector(
     (state) => state.uiState
   );
 
-  const onBtnClick = (type: string, id: string) => {
+  const onBtnClick = (type: string, todo: ITodoState) => {
     switch (type) {
       case "ADD":
-        dispatch(setUi({ type, id }));
+        dispatch(setUi({ type, id: todo.id }));
         break;
       case "FIX":
-        dispatch(setUi({ type, id }));
+        dispatch(setUi({ type, id: todo.id }));
         break;
       case "DEL":
-        dispatch(delTodo(id));
+        dispatch(delTodo(todo.id));
     }
-    dispatch(setCurTodo(id));
+    dispatch(setCurTodo(todo));
   };
 
   return (
@@ -93,8 +92,8 @@ export default function Todo({ recursiveData }: IToDoProps) {
               <i className="fa-solid fa-check" />
             </Check>
             <Title>
-              {fixTg && currentTodoId === todo.id ? (
-                <Form />
+              {fixTg && currentTodo.id === todo.id ? (
+                <TodoTypeInput type="FIX" />
               ) : (
                 <h1>{todo.text}</h1>
               )}
@@ -102,20 +101,24 @@ export default function Todo({ recursiveData }: IToDoProps) {
             <SetMenu>
               {todoSetTg && (
                 <>
-                  <SetBtn onClick={() => onBtnClick("ADD", todo.id)}>
+                  <SetBtn onClick={() => onBtnClick("ADD", todo)}>
                     <i className="fa-solid fa-plus" />
                   </SetBtn>
-                  <SetBtn onClick={() => onBtnClick("FIX", todo.id)}>
+                  <SetBtn onClick={() => onBtnClick("FIX", todo)}>
                     <i className="fa-solid fa-pen" />
                   </SetBtn>
-                  <SetBtn onClick={() => onBtnClick("DEL", todo.id)}>
+                  <SetBtn onClick={() => onBtnClick("DEL", todo)}>
                     <i className="fa-solid fa-xmark" />
                   </SetBtn>
                 </>
               )}
             </SetMenu>
           </ShowCt>
-          <SubCt>{addTg && currentTodoId === todo.id && <Form />}</SubCt>
+          <SubCt>
+            {addTg && currentTodo.id === todo.id && (
+              <TodoTypeInput type="ADD" />
+            )}
+          </SubCt>
           {todo.comment && <Todo recursiveData={todo.comment} />}
         </Content>
       ))}
