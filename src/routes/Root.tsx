@@ -2,8 +2,8 @@ import React from "react";
 import styled from "styled-components";
 import TodoInput from "../components/TodoInput";
 import Todos from "../components/Todos";
-import { useAppDispatch } from "../redux/hooks";
-import { resetToDos } from "../redux/todo/todoSlice";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
+import { resetToDos, selectNotCmpTodo } from "../redux/todo/todoSlice";
 import { setUi } from "../redux/uiState/uiStateSlice";
 
 const Container = styled.div`
@@ -33,10 +33,16 @@ const TestBtn = styled.div`
 
 function Root() {
   const dispatch = useAppDispatch();
+  const todos = useAppSelector((state) => state.todos);
+  const notCmpTodo = useAppSelector(selectNotCmpTodo);
   return (
     <Container>
       <TestBtnGrp>
-        <TestBtn>
+        <TestBtn
+          onClick={() => {
+            alert(`완료하지 못한 할 일 : ${notCmpTodo.join(" , ")}`);
+          }}
+        >
           <i className="fa-solid fa-play" />
         </TestBtn>
         <TestBtn

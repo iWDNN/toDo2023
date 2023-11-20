@@ -1,5 +1,6 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { unPack } from "../../utils";
+import { RootState } from "../store";
 
 export interface ITodoState {
   id: string;
@@ -27,8 +28,14 @@ export const todoSlice = createSlice({
     cmpTodo: (state, action: PayloadAction<string>) => {
       unPack.toggled(state, action.payload);
     },
+
     resetToDos: () => [],
   },
+});
+const todos = (state: RootState) => state.todos;
+export const selectNotCmpTodo = createSelector(todos, (todos) => {
+  unPack.record(todos);
+  return unPack.notCmpArr;
 });
 
 export const { addTodo, delTodo, fixTodo, cmpTodo, resetToDos } =

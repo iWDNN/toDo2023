@@ -45,7 +45,7 @@ export default function TodoTypeInput({ type }: IFormProps) {
       default:
         alert("Form.tsx component error");
     }
-    dispatch(setUi({ type, id: id }));
+    dispatch(setUi({ type, id }));
     dispatch(setCurTodo(todoAdapter.getInitialState()));
     setValue("text", "");
   };

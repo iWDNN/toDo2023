@@ -1,20 +1,21 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { cmpTodo, delTodo, ITodoState } from "../redux/todo/todoSlice";
 import { setCurTodo, setUi } from "../redux/uiState/uiStateSlice";
 import TodoTypeInput from "./TodoTypeInput";
 
-const Container = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-`;
 const Content = styled.div`
   display: flex;
   flex-direction: column;
   padding: 10px;
   margin-left: 15px;
+`;
+
+const Container = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
 `;
 
 const ShowCt = styled.div`
@@ -114,11 +115,11 @@ export default function Todo({ recursiveData }: IToDoProps) {
               )}
             </SetMenu>
           </ShowCt>
-          <SubCt>
-            {addTg && currentTodo.id === todo.id && (
+          {addTg && currentTodo.id === todo.id && (
+            <SubCt>
               <TodoTypeInput type="ADD" />
-            )}
-          </SubCt>
+            </SubCt>
+          )}
           {todo.comment && <Todo recursiveData={todo.comment} />}
         </Content>
       ))}
