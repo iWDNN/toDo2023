@@ -6,16 +6,26 @@ import { addTodo, fixTodo } from "../redux/todo/todoSlice";
 import { setCurTodo, setUi } from "../redux/uiState/uiStateSlice";
 import { todoAdapter } from "../utils";
 
-const Ct = styled.div`
+const Ct = styled.div<{ type: "FIX" | "ADD" }>`
   width: 100%;
-  display: inline-block;
+  display: flex;
+  justify-content: ${(props) =>
+    props.type === "ADD" ? "center" : "flex-start"};
+  align-items: center;
+
   form {
-    width: 100%;
+    width: 95%;
     input {
-      padding: 5px;
-      width: 80%;
+      width: 100%;
+      padding: 7px;
+      border: none;
+      border-radius: 7px;
+      background-color: #f4f4f4;
+      box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.06);
       outline: none;
-      border: 2px solid #eee;
+      &:focus {
+        border: 2px solid #2d2d2d;
+      }
     }
   }
 `;
@@ -53,7 +63,7 @@ export default function TodoTypeInput({ type }: IFormProps) {
     setFocus("text");
   }, [type]);
   return (
-    <Ct>
+    <Ct type={type}>
       <form onSubmit={handleSubmit(onValid)}>
         <input
           {...register("text")}

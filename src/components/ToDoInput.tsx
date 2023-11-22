@@ -5,23 +5,14 @@ import { useAppDispatch } from "../redux/hooks";
 import { addTodo } from "../redux/todo/todoSlice";
 
 const Container = styled.div`
-  max-width: 1080px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-grow: 1;
-  margin-bottom: 15px;
   form {
-    width: 80%;
     input {
-      width: 100%;
+      min-width: 360px;
       padding: 10px;
-      border: 2.5px solid ${(props) => props.theme.accentColor};
-      border-radius: 15px;
+      border: none;
+      border-radius: 7px;
+      box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.06);
       outline: none;
-      &:focus {
-        border-color: #000;
-      }
     }
   }
 `;

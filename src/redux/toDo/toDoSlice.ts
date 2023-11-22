@@ -33,9 +33,10 @@ export const todoSlice = createSlice({
   },
 });
 const todos = (state: RootState) => state.todos;
-export const selectNotCmpTodo = createSelector(todos, (todos) => {
+export const todoProgress = createSelector(todos, (todos) => {
+  unPack.reset();
   unPack.record(todos);
-  return unPack.notCmpArr;
+  return Math.floor((unPack.cmpArr.length / unPack.allArr.length) * 100);
 });
 
 export const { addTodo, delTodo, fixTodo, cmpTodo, resetToDos } =

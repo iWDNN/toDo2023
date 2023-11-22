@@ -58,8 +58,6 @@ a{
 	color:inherit;
 }
 body{
-	background-color: ${(props) => props.theme.bgColor};
-	color:${(props) => props.theme.textColor};
 }
 `;
 let persistor = persistStore(store);

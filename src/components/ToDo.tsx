@@ -5,56 +5,58 @@ import { cmpTodo, delTodo, ITodoState } from "../redux/todo/todoSlice";
 import { setCurTodo, setUi } from "../redux/uiState/uiStateSlice";
 import TodoTypeInput from "./TodoTypeInput";
 
-const Content = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: 10px;
-  margin-left: 15px;
-`;
-
 const Container = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
+  min-width: 480px;
+  margin-left: 10px;
+`;
+const Content = styled.div<{ cmp: boolean }>`
+  opacity: ${(props) => props.cmp && "0.5"};
+  & > div:first-child {
+    & > div:nth-child(2) {
+      h1 {
+        text-decoration: ${(props) => props.cmp && "line-through"};
+      }
+    }
+  }
+`;
+const ShowCt = styled.div`
+  height: 40px;
+  display: grid;
+  grid-template-columns: 8% 77% 15%;
+  align-items: center;
+  margin: 10px 0;
+
+  transition: box-shadow 0.2s ease-in-out;
+  &:hover {
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.06);
+  }
+  & > * {
+    width: 100%;
+  }
 `;
 
-const ShowCt = styled.div`
-  height: 30px;
-  position: relative;
-  display: grid;
-  grid-template-columns: 10% 80% 10% 0%; //
+const Check = styled.div`
+  display: flex;
+  justify-content: center;
   align-items: center;
-  padding: 10px 0;
-  border-bottom: 2px solid ${(props) => props.theme.accentColor};
-`;
-const Check = styled.div<{ isCmp: boolean }>`
-  i {
-    color: ${(props) => (props.isCmp ? "#4cd137" : "#e1e1e1")};
-  }
+  color: black;
 `;
 const Title = styled.div`
-  word-break: break-all;
-  white-space: pre-line;
-`;
-const SetMenu = styled.div`
   display: flex;
-  justify-content: flex-end;
   align-items: center;
 `;
-const SetBtn = styled.div<{ isTg?: boolean }>`
-  i {
-    padding: 5px;
-    font-size: 18px;
-    font-weight: 700;
-    /* transition: all 0.2s ease-in-out; */
-    transform: ${(props) => props.isTg && "rotate(45deg)"};
+
+const SetGrp = styled.div`
+  display: flex;
+  justify-content: flex-end;
+`;
+const SetBtn = styled.div`
+  margin-left: 20px;
+  &:last-child {
+    margin: 0 20px;
   }
 `;
-const SubCt = styled.div`
-  width: 100%;
-  margin-top: 10px;
-  text-align: center;
-`;
+const SubCt = styled.div``;
 
 interface IToDoProps {
   recursiveData: ITodoState[];
@@ -65,7 +67,13 @@ export default function Todo({ recursiveData }: IToDoProps) {
     (state) => state.uiState
   );
 
-  const onBtnClick = (type: string, todo: ITodoState) => {
+  const onBtnClick = (
+    type: string,
+    todo: ITodoState,
+    e: React.FormEvent<HTMLElement>
+  ) => {
+    e.stopPropagation();
+    console.log("btn");
     switch (type) {
       case "ADD":
         dispatch(setUi({ type, id: todo.id }));
@@ -82,16 +90,26 @@ export default function Todo({ recursiveData }: IToDoProps) {
   return (
     <Container>
       {recursiveData.map((todo) => (
-        <Content key={todo.id}>
+        <Content
+          key={todo.id}
+          onClick={() => {
+            dispatch(cmpTodo(todo.id));
+          }}
+          cmp={todo.completed}
+        >
           <ShowCt>
-            <Check
-              isCmp={todo.completed}
-              onClick={() => {
-                dispatch(cmpTodo(todo.id));
-              }}
-            >
-              <i className="fa-solid fa-check" />
-            </Check>
+            {todo.completed ? (
+              <Check
+                onClick={() => {
+                  dispatch(cmpTodo(todo.id));
+                }}
+              >
+                <i className="fa-solid fa-check" />
+              </Check>
+            ) : (
+              <div />
+            )}
+
             <Title>
               {fixTg && currentTodo.id === todo.id ? (
                 <TodoTypeInput type="FIX" />
@@ -99,21 +117,34 @@ export default function Todo({ recursiveData }: IToDoProps) {
                 <h1>{todo.text}</h1>
               )}
             </Title>
-            <SetMenu>
-              {todoSetTg && (
+            <SetGrp>
+              {!todoSetTg ? (
+                <SetBtn
+                  onClick={(e: React.FormEvent<HTMLElement>) =>
+                    onBtnClick("ADD", todo, e)
+                  }
+                >
+                  <i className="fa-solid fa-plus" />
+                </SetBtn>
+              ) : (
                 <>
-                  <SetBtn onClick={() => onBtnClick("ADD", todo)}>
-                    <i className="fa-solid fa-plus" />
-                  </SetBtn>
-                  <SetBtn onClick={() => onBtnClick("FIX", todo)}>
+                  <SetBtn
+                    onClick={(e: React.FormEvent<HTMLElement>) =>
+                      onBtnClick("FIX", todo, e)
+                    }
+                  >
                     <i className="fa-solid fa-pen" />
                   </SetBtn>
-                  <SetBtn onClick={() => onBtnClick("DEL", todo)}>
+                  <SetBtn
+                    onClick={(e: React.FormEvent<HTMLElement>) =>
+                      onBtnClick("DEL", todo, e)
+                    }
+                  >
                     <i className="fa-solid fa-xmark" />
                   </SetBtn>
                 </>
               )}
-            </SetMenu>
+            </SetGrp>
           </ShowCt>
           {addTg && currentTodo.id === todo.id && (
             <SubCt>

@@ -2,68 +2,94 @@ import React from "react";
 import styled from "styled-components";
 import TodoInput from "../components/TodoInput";
 import Todos from "../components/Todos";
-import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { resetToDos, selectNotCmpTodo } from "../redux/todo/todoSlice";
-import { setUi } from "../redux/uiState/uiStateSlice";
+import { useAppSelector } from "../redux/hooks";
+import { todoProgress } from "../redux/todo/todoSlice";
 
 const Container = styled.div`
-  max-width: 1080px;
-  margin: 0 auto;
-  padding: 0 10px;
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 48% 4% 48%;
+  align-items: center;
+  @media screen and (max-width: 1040px) {
+    display: flex;
+    flex-direction: column;
+  }
 `;
+
 const Header = styled.header`
-  height: 10vh;
   display: flex;
+  justify-content: flex-end;
+  align-items: center;
+
+  & > *:nth-child(1) {
+  }
+  & > *:nth-child(2) {
+    margin-left: 20px;
+  }
+  @media screen and (max-width: 1040px) {
+    flex-direction: column;
+    justify-content: center;
+    padding-top: 20px;
+    & > *:nth-child(1) {
+      & > h1 {
+        font-size: 2.5em;
+      }
+      & > div {
+        width: 100px;
+      }
+    }
+    & > *:nth-child(2) {
+      margin-top: 20px;
+    }
+  }
+`;
+const Wrap = styled.div`
+  display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
 `;
-
 const Title = styled.h1`
-  font-size: 48px;
-  font-weight: 700;
+  font-size: 1.4em;
+  font-weight: 600;
+  margin-bottom: 5px;
 `;
-const TestBtnGrp = styled.div`
-  position: absolute;
-  display: flex;
+const BgBar = styled.div`
+  width: 80px;
+  height: 5px;
+  background-color: #1212;
+  border-radius: 7px;
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.06);
 `;
-const TestBtn = styled.div`
-  border: 2px solid black;
-  padding: 3px;
+const Bar = styled.div<{ progress: number }>`
+  width: ${(props) => (props.progress ? props.progress + "%" : "0")};
+  height: 100%;
+  background-color: #4cd137;
+  border-radius: inherit;
+  transition: all 0.2s ease-in-out;
 `;
 
 function Root() {
-  const dispatch = useAppDispatch();
   const todos = useAppSelector((state) => state.todos);
-  const notCmpTodo = useAppSelector(selectNotCmpTodo);
+  const todoPercent = useAppSelector(todoProgress);
   return (
     <Container>
-      <TestBtnGrp>
-        <TestBtn
-          onClick={() => {
-            alert(`완료하지 못한 할 일 : ${notCmpTodo.join(" , ")}`);
-          }}
-        >
-          <i className="fa-solid fa-play" />
-        </TestBtn>
-        <TestBtn
-          onClick={() => {
-            dispatch(resetToDos());
-          }}
-        >
-          <i className="fa-solid fa-trash" />
-        </TestBtn>
-        <TestBtn
-          onClick={() => {
-            dispatch(setUi({ type: "SET" }));
-          }}
-        >
-          <i className="fa-solid fa-gear" />
-        </TestBtn>
-      </TestBtnGrp>
       <Header>
-        <Title>Test Page</Title>
+        <Wrap>
+          <Title>
+            {todos.length
+              ? todoPercent
+                ? todoPercent + "%"
+                : "0%"
+              : "할 일을 추가해주세요"}
+          </Title>
+          <BgBar>
+            <Bar progress={todoPercent} />
+          </BgBar>
+        </Wrap>
+        <TodoInput />
       </Header>
-      <TodoInput />
+      <div />
       <Todos />
     </Container>
   );
