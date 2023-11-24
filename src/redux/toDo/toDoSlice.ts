@@ -1,9 +1,10 @@
 import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { unPack } from "../../utils";
+import { unpack } from "../../utils";
 import { RootState } from "../store";
 
 export interface ITodoState {
   id: string;
+  type?: "DAILY" | "WEEKEND" | "MONTHLY" | "YEARLY";
   text: string;
   completed: boolean;
   comment: ITodoState[];
@@ -15,28 +16,37 @@ export const todoSlice = createSlice({
   reducers: {
     addTodo: (
       state,
-      action: PayloadAction<{ parentId: string; text: string }>
+      action: PayloadAction<{
+        parentId: string;
+        text: string;
+        type?: "DAILY" | "WEEKEND" | "MONTHLY" | "YEARLY";
+      }>
     ) => {
-      unPack.add(state, action.payload);
+      unpack.add(state, action.payload);
     },
     delTodo: (state, action: PayloadAction<string>) => {
-      unPack.delete(state, action.payload);
+      unpack.delete(state, action.payload);
     },
     fixTodo: (state, action: PayloadAction<{ id: string; text: string }>) => {
-      unPack.fix(state, action.payload);
+      unpack.fix(state, action.payload);
     },
     cmpTodo: (state, action: PayloadAction<string>) => {
-      unPack.toggled(state, action.payload);
+      unpack.toggled(state, action.payload);
     },
 
     resetToDos: () => [],
   },
 });
 const todos = (state: RootState) => state.todos;
-export const todoProgress = createSelector(todos, (todos) => {
-  unPack.reset();
-  unPack.record(todos);
-  return Math.floor((unPack.cmpArr.length / unPack.allArr.length) * 100);
+export const selTodoPercent = createSelector(todos, (todos) => {
+  unpack.reset();
+  unpack.record(todos);
+  return Math.floor((unpack.cmpArr.length / unpack.allArr.length) * 100);
+});
+export const selTodoUnpackList = createSelector(todos, (todos) => {
+  unpack.reset();
+  unpack.record(todos);
+  return unpack.allArr;
 });
 
 export const { addTodo, delTodo, fixTodo, cmpTodo, resetToDos } =

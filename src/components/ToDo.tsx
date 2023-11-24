@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { cmpTodo, delTodo, ITodoState } from "../redux/todo/todoSlice";
@@ -7,31 +7,33 @@ import TodoTypeInput from "./TodoTypeInput";
 
 const Container = styled.div`
   min-width: 480px;
-  margin-left: 10px;
+  margin-left: 20px;
+  user-select: none;
 `;
-const Content = styled.div<{ cmp: boolean }>`
-  opacity: ${(props) => props.cmp && "0.5"};
-  & > div:first-child {
-    & > div:nth-child(2) {
-      h1 {
-        text-decoration: ${(props) => props.cmp && "line-through"};
-      }
-    }
-  }
-`;
-const ShowCt = styled.div`
+const Content = styled.div``;
+const ShowCt = styled.div<{ cmp: boolean }>`
   height: 40px;
   display: grid;
   grid-template-columns: 8% 77% 15%;
   align-items: center;
   margin: 10px 0;
-
+  border-left: 3px solid ${(props) => (props.cmp ? "#4cd137" : "none")};
+  border-top-left-radius: 2px;
+  border-bottom-left-radius: 2px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+  opacity: ${(props) => props.cmp && "0.35"};
+  cursor: pointer;
   transition: box-shadow 0.2s ease-in-out;
   &:hover {
     box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.06);
   }
   & > * {
     width: 100%;
+  }
+  & > div:nth-child(2) {
+    h1 {
+      text-decoration: ${(props) => props.cmp && "line-through"};
+    }
   }
 `;
 
@@ -44,6 +46,9 @@ const Check = styled.div`
 const Title = styled.div`
   display: flex;
   align-items: center;
+  h1 {
+    font-size: 0.95em;
+  }
 `;
 
 const SetGrp = styled.div`
@@ -60,8 +65,9 @@ const SubCt = styled.div``;
 
 interface IToDoProps {
   recursiveData: ITodoState[];
+  repeat?: boolean;
 }
-export default function Todo({ recursiveData }: IToDoProps) {
+export default function Todo({ recursiveData, repeat = true }: IToDoProps) {
   const dispatch = useAppDispatch();
   const { todoSetTg, addTg, fixTg, currentTodo } = useAppSelector(
     (state) => state.uiState
@@ -73,7 +79,6 @@ export default function Todo({ recursiveData }: IToDoProps) {
     e: React.FormEvent<HTMLElement>
   ) => {
     e.stopPropagation();
-    console.log("btn");
     switch (type) {
       case "ADD":
         dispatch(setUi({ type, id: todo.id }));
@@ -90,14 +95,13 @@ export default function Todo({ recursiveData }: IToDoProps) {
   return (
     <Container>
       {recursiveData.map((todo) => (
-        <Content
-          key={todo.id}
-          onClick={() => {
-            dispatch(cmpTodo(todo.id));
-          }}
-          cmp={todo.completed}
-        >
-          <ShowCt>
+        <Content key={todo.id}>
+          <ShowCt
+            onClick={() => {
+              dispatch(cmpTodo(todo.id));
+            }}
+            cmp={todo.completed}
+          >
             {todo.completed ? (
               <Check
                 onClick={() => {
@@ -119,22 +123,26 @@ export default function Todo({ recursiveData }: IToDoProps) {
             </Title>
             <SetGrp>
               {!todoSetTg ? (
-                <SetBtn
-                  onClick={(e: React.FormEvent<HTMLElement>) =>
-                    onBtnClick("ADD", todo, e)
-                  }
-                >
-                  <i className="fa-solid fa-plus" />
-                </SetBtn>
-              ) : (
-                <>
+                !todo.completed && (
                   <SetBtn
                     onClick={(e: React.FormEvent<HTMLElement>) =>
-                      onBtnClick("FIX", todo, e)
+                      onBtnClick("ADD", todo, e)
                     }
                   >
-                    <i className="fa-solid fa-pen" />
+                    <i className="fa-solid fa-plus" />
                   </SetBtn>
+                )
+              ) : (
+                <>
+                  {!todo.completed && (
+                    <SetBtn
+                      onClick={(e: React.FormEvent<HTMLElement>) =>
+                        onBtnClick("FIX", todo, e)
+                      }
+                    >
+                      <i className="fa-solid fa-pen" />
+                    </SetBtn>
+                  )}
                   <SetBtn
                     onClick={(e: React.FormEvent<HTMLElement>) =>
                       onBtnClick("DEL", todo, e)
@@ -151,7 +159,7 @@ export default function Todo({ recursiveData }: IToDoProps) {
               <TodoTypeInput type="ADD" />
             </SubCt>
           )}
-          {todo.comment && <Todo recursiveData={todo.comment} />}
+          {repeat && todo.comment && <Todo recursiveData={todo.comment} />}
         </Content>
       ))}
     </Container>

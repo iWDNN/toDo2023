@@ -1,9 +1,10 @@
 import React from "react";
 import styled from "styled-components";
+import Todo from "../components/Todo";
 import TodoInput from "../components/TodoInput";
 import Todos from "../components/Todos";
 import { useAppSelector } from "../redux/hooks";
-import { todoProgress } from "../redux/todo/todoSlice";
+import { selTodoPercent, selTodoUnpackList } from "../redux/todo/todoSlice";
 
 const Container = styled.div`
   min-height: 100vh;
@@ -18,29 +19,22 @@ const Container = styled.div`
 
 const Header = styled.header`
   display: flex;
-  justify-content: flex-end;
+  flex-direction: column;
   align-items: center;
-
+  padding-top: 20px;
   & > *:nth-child(1) {
+    & > h1 {
+      font-size: 2.5em;
+      @media screen and (min-width: 1040px) {
+        font-size: 1.5em;
+      }
+    }
+    & > div {
+      width: 100px;
+    }
   }
   & > *:nth-child(2) {
-    margin-left: 20px;
-  }
-  @media screen and (max-width: 1040px) {
-    flex-direction: column;
-    justify-content: center;
-    padding-top: 20px;
-    & > *:nth-child(1) {
-      & > h1 {
-        font-size: 2.5em;
-      }
-      & > div {
-        width: 100px;
-      }
-    }
-    & > *:nth-child(2) {
-      margin-top: 20px;
-    }
+    margin-top: 20px;
   }
 `;
 const Wrap = styled.div`
@@ -61,8 +55,8 @@ const BgBar = styled.div`
   border-radius: 7px;
   box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.06);
 `;
-const Bar = styled.div<{ progress: number }>`
-  width: ${(props) => (props.progress ? props.progress + "%" : "0")};
+const Bar = styled.div<{ percent: number }>`
+  width: ${(props) => (props.percent ? props.percent + "%" : "0%")};
   height: 100%;
   background-color: #4cd137;
   border-radius: inherit;
@@ -71,7 +65,7 @@ const Bar = styled.div<{ progress: number }>`
 
 function Root() {
   const todos = useAppSelector((state) => state.todos);
-  const todoPercent = useAppSelector(todoProgress);
+  const todoPercent = useAppSelector(selTodoPercent);
   return (
     <Container>
       <Header>
@@ -84,7 +78,7 @@ function Root() {
               : "할 일을 추가해주세요"}
           </Title>
           <BgBar>
-            <Bar progress={todoPercent} />
+            <Bar percent={20} />
           </BgBar>
         </Wrap>
         <TodoInput />

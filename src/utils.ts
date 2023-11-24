@@ -11,15 +11,23 @@ export const todoAdapter = {
     };
   },
 };
-export const unPack = {
+export const unpack = {
   allArr: [] as ITodoState[],
   cmpArr: [] as ITodoState[],
   notCmpArr: [] as ITodoState[],
-  add: (state: ITodoState[], payload: { parentId?: string; text: string }) => {
+  add: (
+    state: ITodoState[],
+    payload: {
+      parentId: string;
+      text: string;
+      type?: "DAILY" | "WEEKEND" | "MONTHLY" | "YEARLY";
+    }
+  ) => {
     if (!payload.parentId) {
       state.push(
         Object.assign(todoAdapter.getInitialState(), {
           text: payload.text,
+          type: payload.type && payload.type,
         })
       );
     } else {
@@ -37,7 +45,7 @@ export const unPack = {
             Array.isArray(value) &&
             value.length > 0
           ) {
-            if (unPack.add(value, payload)) {
+            if (unpack.add(value, payload)) {
               return true;
             }
           }
@@ -61,7 +69,7 @@ export const unPack = {
           value.length > 0
         ) {
           temp = value;
-          if (unPack.delete(value, id, temp)) {
+          if (unpack.delete(value, id, temp)) {
             return true;
           }
         }
@@ -89,7 +97,7 @@ export const unPack = {
           value.length > 0
         ) {
           temp = value;
-          if (unPack.fix(value, payload, temp)) {
+          if (unpack.fix(value, payload, temp)) {
             return true;
           }
         }
@@ -116,7 +124,7 @@ export const unPack = {
           value.length > 0
         ) {
           temp = value;
-          if (unPack.toggled(value, id, temp)) {
+          if (unpack.toggled(value, id, temp)) {
             return true;
           }
         }
@@ -135,7 +143,7 @@ export const unPack = {
         } else if (key === "completed" && value === true) {
           this.cmpArr.push(todo);
         } else if (key === "comment" && value.length > 0) {
-          if (unPack.record(value)) {
+          if (unpack.record(value)) {
             return true;
           }
         }

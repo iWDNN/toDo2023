@@ -45,15 +45,17 @@ export default function TodoTypeInput({ type }: IFormProps) {
     },
   });
   const onValid = ({ text }: IFormState) => {
-    switch (type) {
-      case "ADD":
-        dispatch(addTodo({ parentId: id, text }));
-        break;
-      case "FIX":
-        dispatch(fixTodo({ id, text }));
-        break;
-      default:
-        alert("Form.tsx component error");
+    if (text) {
+      switch (type) {
+        case "ADD":
+          dispatch(addTodo({ parentId: id, text }));
+          break;
+        case "FIX":
+          dispatch(fixTodo({ id, text }));
+          break;
+        default:
+          alert("Form.tsx component error");
+      }
     }
     dispatch(setUi({ type, id }));
     dispatch(setCurTodo(todoAdapter.getInitialState()));
