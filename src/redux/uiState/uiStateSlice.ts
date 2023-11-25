@@ -30,9 +30,9 @@ export const uiStateSlice = createSlice({
           state.todoSetTg = !state.todoSetTg;
           if (!state.todoSetTg) {
             state.currentTodo.id = "";
-            state.addTg = false;
-            state.fixTg = false;
           }
+          state.addTg = false;
+          state.fixTg = false;
           break;
         case "ADD":
           state.currentTodo.id === action.payload.id

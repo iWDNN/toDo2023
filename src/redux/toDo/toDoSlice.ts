@@ -4,7 +4,7 @@ import { RootState } from "../store";
 
 export interface ITodoState {
   id: string;
-  type?: "DAILY" | "WEEKEND" | "MONTHLY" | "YEARLY";
+  option: "NONE" | "DAILY" | "WEEKEND" | "MONTHLY" | "YEARLY";
   text: string;
   completed: boolean;
   comment: ITodoState[];
@@ -19,7 +19,7 @@ export const todoSlice = createSlice({
       action: PayloadAction<{
         parentId: string;
         text: string;
-        type?: "DAILY" | "WEEKEND" | "MONTHLY" | "YEARLY";
+        option: "NONE" | "DAILY" | "WEEKEND" | "MONTHLY" | "YEARLY";
       }>
     ) => {
       unpack.add(state, action.payload);
@@ -27,7 +27,14 @@ export const todoSlice = createSlice({
     delTodo: (state, action: PayloadAction<string>) => {
       unpack.delete(state, action.payload);
     },
-    fixTodo: (state, action: PayloadAction<{ id: string; text: string }>) => {
+    fixTodo: (
+      state,
+      action: PayloadAction<{
+        id: string;
+        text: string;
+        option: "NONE" | "DAILY" | "WEEKEND" | "MONTHLY" | "YEARLY";
+      }>
+    ) => {
       unpack.fix(state, action.payload);
     },
     cmpTodo: (state, action: PayloadAction<string>) => {

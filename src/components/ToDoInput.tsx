@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import styled from "styled-components";
 import { useAppDispatch } from "../redux/hooks";
 import { addTodo } from "../redux/todo/todoSlice";
-import { DAILY, MONTHLY, WEEKEND, YEARLY } from "../type";
+import { DAILY, MONTHLY, NONE, WEEKEND, YEARLY } from "../type";
 
 const Container = styled.div`
   form {
@@ -33,24 +33,25 @@ const Container = styled.div`
 
 interface IForm {
   text: string;
-  type: "DAILY" | "WEEKEND" | "MONTHLY" | "YEARLY";
+  option: "NONE" | "DAILY" | "WEEKEND" | "MONTHLY" | "YEARLY";
 }
 export default function TodoInput() {
   const dispatch = useAppDispatch();
 
   const { register, handleSubmit, setValue } = useForm<IForm>({
     defaultValues: {
-      type: "DAILY",
+      option: "NONE",
     },
   });
-  const onSubmit = ({ text, type }: IForm) => {
-    dispatch(addTodo({ parentId: "", text, type }));
+  const onSubmit = ({ text, option }: IForm) => {
+    dispatch(addTodo({ parentId: "", text, option }));
     setValue("text", "");
   };
   return (
     <Container>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <select {...register("type")}>
+        <select {...register("option")}>
+          <option value={NONE}>미정</option>
           <option value={DAILY}>일간</option>
           <option value={WEEKEND}>주간</option>
           <option value={MONTHLY}>월간</option>

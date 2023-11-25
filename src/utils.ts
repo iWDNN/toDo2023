@@ -1,13 +1,15 @@
 import uuid from "react-uuid";
 import { ITodoState } from "./redux/todo/todoSlice";
+import { DAILY, MONTHLY, NONE, WEEKEND, YEARLY } from "./type";
 
 export const todoAdapter = {
-  getInitialState: () => {
+  getInitialState: (): ITodoState => {
     return {
       id: uuid(),
       text: "",
       completed: false,
       comment: [],
+      option: "NONE",
     };
   },
 };
@@ -20,14 +22,14 @@ export const unpack = {
     payload: {
       parentId: string;
       text: string;
-      type?: "DAILY" | "WEEKEND" | "MONTHLY" | "YEARLY";
+      option: "NONE" | "DAILY" | "WEEKEND" | "MONTHLY" | "YEARLY";
     }
   ) => {
     if (!payload.parentId) {
       state.push(
         Object.assign(todoAdapter.getInitialState(), {
           text: payload.text,
-          type: payload.type && payload.type,
+          option: payload.option,
         })
       );
     } else {
@@ -37,6 +39,7 @@ export const unpack = {
             todo.comment.push(
               Object.assign(todoAdapter.getInitialState(), {
                 text: payload.text,
+                option: payload.option,
               })
             );
             return true;
@@ -79,7 +82,11 @@ export const unpack = {
   },
   fix: (
     state: ITodoState[],
-    payload: { id: string; text: string },
+    payload: {
+      id: string;
+      text: string;
+      option: "NONE" | "DAILY" | "WEEKEND" | "MONTHLY" | "YEARLY";
+    },
     temp: ITodoState[] = []
   ) => {
     for (const todo of state) {
@@ -89,7 +96,11 @@ export const unpack = {
             temp = state;
           }
           const findIdx = temp.findIndex((el) => el.id === value);
-          temp[findIdx] = { ...temp[findIdx], text: payload.text };
+          temp[findIdx] = {
+            ...temp[findIdx],
+            text: payload.text,
+            option: payload.option,
+          };
           return true;
         } else if (
           key === "comment" &&
@@ -157,6 +168,8 @@ export const unpack = {
   },
 };
 
+export const daylist = ["일", "월", "화", "수", "목", "금", "토"];
+export const filterlist = ["ALL", DAILY, WEEKEND, MONTHLY, YEARLY, NONE];
 // const unPackFindToDo = (todos: ITodoState[], wish: string) => {
 //   for (const todo of todos as any[]) {
 //     for (const [key, value] of Object.entries(todo) as any) {

@@ -11,17 +11,17 @@ const Container = styled.div`
   user-select: none;
 `;
 const Content = styled.div``;
-const ShowCt = styled.div<{ cmp: boolean }>`
+const ShowCt = styled.div<{ $cmp: boolean }>`
   height: 40px;
   display: grid;
-  grid-template-columns: 8% 77% 15%;
+  grid-template-columns: 85% 15%;
   align-items: center;
   margin: 10px 0;
-  border-left: 3px solid ${(props) => (props.cmp ? "#4cd137" : "none")};
+  border-left: 3px solid ${(props) => (props.$cmp ? "#4cd137" : "none")};
   border-top-left-radius: 2px;
   border-bottom-left-radius: 2px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
-  opacity: ${(props) => props.cmp && "0.35"};
+  opacity: ${(props) => props.$cmp && "0.35"};
   cursor: pointer;
   transition: box-shadow 0.2s ease-in-out;
   &:hover {
@@ -30,18 +30,26 @@ const ShowCt = styled.div<{ cmp: boolean }>`
   & > * {
     width: 100%;
   }
-  & > div:nth-child(2) {
-    h1 {
-      text-decoration: ${(props) => props.cmp && "line-through"};
+  & > div:nth-child(1) {
+    & > div:nth-child(2) {
+      h1 {
+        text-decoration: ${(props) => props.$cmp && "line-through"};
+      }
     }
   }
 `;
+const FixBox = styled.div`
+  display: grid;
+  grid-template-columns: 15% 85%;
+`;
 
-const Check = styled.div`
+const Option = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
   color: black;
+  font-size: 0.8em;
+  font-weight: 700;
 `;
 const Title = styled.div`
   display: flex;
@@ -100,27 +108,24 @@ export default function Todo({ recursiveData, repeat = true }: IToDoProps) {
             onClick={() => {
               dispatch(cmpTodo(todo.id));
             }}
-            cmp={todo.completed}
+            $cmp={todo.completed}
           >
-            {todo.completed ? (
-              <Check
-                onClick={() => {
-                  dispatch(cmpTodo(todo.id));
-                }}
-              >
-                <i className="fa-solid fa-check" />
-              </Check>
+            {fixTg && currentTodo.id === todo.id ? (
+              <TodoTypeInput type="FIX" />
             ) : (
-              <div />
+              <FixBox>
+                <Option
+                  onClick={() => {
+                    dispatch(cmpTodo(todo.id));
+                  }}
+                >
+                  {todo.option !== "NONE" && todo.option}
+                </Option>
+                <Title>
+                  <h1>{todo.text}</h1>
+                </Title>
+              </FixBox>
             )}
-
-            <Title>
-              {fixTg && currentTodo.id === todo.id ? (
-                <TodoTypeInput type="FIX" />
-              ) : (
-                <h1>{todo.text}</h1>
-              )}
-            </Title>
             <SetGrp>
               {!todoSetTg ? (
                 !todo.completed && (
@@ -148,7 +153,7 @@ export default function Todo({ recursiveData, repeat = true }: IToDoProps) {
                       onBtnClick("DEL", todo, e)
                     }
                   >
-                    <i className="fa-solid fa-xmark" />
+                    <i className="fa-solid fa-trash" />
                   </SetBtn>
                 </>
               )}

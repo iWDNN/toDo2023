@@ -8,6 +8,6 @@
 
 - todo-completed-animation
 
-- all / daily / mont
+- all / daily / monthly / yearly
 
 - date

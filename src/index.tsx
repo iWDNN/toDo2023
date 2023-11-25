@@ -56,6 +56,7 @@ table {
 }
 a{
 	color:inherit;
+	text-decoration: none;
 }
 body{
 }
