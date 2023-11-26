@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useSelector } from "react-redux";
-import { Link, Outlet, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import uuid from "react-uuid";
 import styled from "styled-components";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import {
   ITodoState,
   resetToDos,
+  selFilteredTodos,
   selTodoUnpackList,
 } from "../redux/todo/todoSlice";
 import { setUi } from "../redux/uiState/uiStateSlice";
@@ -54,23 +55,13 @@ const ToDoList = styled.div`
 `;
 
 export default function Todos() {
-  const dispatch = useAppDispatch();
   const { filterId } = useParams();
-  const toDoRedux = useAppSelector((state) => state.todos);
-  const todoUnpackList = useSelector(selTodoUnpackList);
-  const [todoData, setTodoData] = useState<ITodoState[]>(toDoRedux);
-  useEffect(() => {
-    if (filterId === "all") {
-      setTodoData(toDoRedux);
-    } else {
-      setTodoData(
-        todoUnpackList.filter(
-          (todo) => todo.option === filterId?.toLocaleUpperCase()
-        )
-      );
-    }
-  }, [filterId]);
 
+  const dispatch = useAppDispatch();
+  const toDoRedux = useAppSelector((state) => state.todos);
+  const filteredTodos = useSelector((state: ITodoState[]) =>
+    selFilteredTodos(state, filterId?.toUpperCase())
+  );
   return (
     <>
       <MenuList>
@@ -98,7 +89,10 @@ export default function Todos() {
           ))}
         </Tabs>
         <ToDoList>
-          <Todo recursiveData={todoData} repeat={filterId === "all"} />
+          <Todo
+            recursiveData={filterId === "all" ? toDoRedux : filteredTodos}
+            repeat={filterId === "all"}
+          />
         </ToDoList>
       </Container>
     </>

@@ -44,17 +44,25 @@ export const todoSlice = createSlice({
     resetToDos: () => [],
   },
 });
-const todos = (state: RootState) => state.todos;
-export const selTodoPercent = createSelector(todos, (todos) => {
+
+const selTodos = (state: RootState) => state.todos;
+
+export const selTodoPercent = createSelector(selTodos, (todos) => {
   unpack.reset();
   unpack.record(todos);
   return Math.floor((unpack.cmpArr.length / unpack.allArr.length) * 100);
 });
-export const selTodoUnpackList = createSelector(todos, (todos) => {
+export const selTodoUnpackList = createSelector(selTodos, (todos) => {
   unpack.reset();
   unpack.record(todos);
   return unpack.allArr;
 });
+
+export const selFilteredTodos = createSelector(
+  [selTodoUnpackList, (_state, filterId) => filterId],
+  (unpackListTodos, filterId) =>
+    unpackListTodos.filter((todo) => todo.option === filterId)
+);
 
 export const { addTodo, delTodo, fixTodo, cmpTodo, resetToDos } =
   todoSlice.actions;
