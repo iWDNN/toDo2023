@@ -1,6 +1,6 @@
 import uuid from "react-uuid";
 import { ITodoState } from "./redux/todo/todoSlice";
-import { DAILY, MONTHLY, NONE, WEEKEND, YEARLY } from "./type";
+import { TodoOptionType } from "./type";
 
 export const todoAdapter = {
   getInitialState: (): ITodoState => {
@@ -22,7 +22,7 @@ export const unpack = {
     payload: {
       parentId: string;
       text: string;
-      option: "NONE" | "DAILY" | "WEEKEND" | "MONTHLY" | "YEARLY";
+      option: TodoOptionType;
     }
   ) => {
     if (!payload.parentId) {
@@ -85,7 +85,7 @@ export const unpack = {
     payload: {
       id: string;
       text: string;
-      option: "NONE" | "DAILY" | "WEEKEND" | "MONTHLY" | "YEARLY";
+      option: TodoOptionType;
     },
     temp: ITodoState[] = []
   ) => {
@@ -161,27 +161,112 @@ export const unpack = {
       }
     }
   },
-  reset() {
+  reset(
+    state: ITodoState[],
+    payload: {
+      type?: "completed";
+      option?: "ALL" | TodoOptionType;
+    }
+  ) {
+    for (const todo of state) {
+      for (const [key, value] of Object.entries(todo)) {
+        if (payload.type === "completed") {
+          if (key === "completed" && value === true) {
+            if (todo.option === payload.option) {
+              todo.completed = false;
+            } else if (payload.option === "ALL") {
+              todo.completed = false;
+            }
+          } else if (key === "comment" && value.length > 0) {
+            if (unpack.reset(value, payload)) {
+              return true;
+            }
+          }
+        }
+      }
+    }
+  },
+
+  unpackReset() {
     this.allArr = [];
     this.cmpArr = [];
     this.notCmpArr = [];
   },
 };
 
-export const daylist = ["일", "월", "화", "수", "목", "금", "토"];
-export const filterlist = ["ALL", DAILY, WEEKEND, MONTHLY, YEARLY, NONE];
-// const unPackFindToDo = (todos: ITodoState[], wish: string) => {
-//   for (const todo of todos as any[]) {
-//     for (const [key, value] of Object.entries(todo) as any) {
-//       if (Array.isArray(value) && value.length > 0) {
-//         if (unPackFindToDo(value, wish)) {
-//           return true;
-//         }
-//       } else if (todo.id === wish) {
-//         return true;
-//       }
-//     }
-//   }
-// };
-// unPackFindToDo(state, action.payload);
-// Object.assign(state, testCopy);
+export const resetDatePeriod = (type: string) => {
+  switch (type) {
+    case "DAILY":
+  }
+};
+
+export const setLS = (name: string, content: any) => {
+  localStorage.setItem(name, JSON.stringify(content));
+};
+export const getLS = (name: string) => {
+  return JSON.parse(localStorage.getItem(name) as any);
+};
+
+export const resetPeriodLS = (dispatch: Function, resetFunc: Function) => {
+  if (!getLS("resetPeriod")) {
+    setLS("resetPeriod", { daily: 0, weekend: false, monthly: 0, yearly: 0 });
+  } else {
+    const today = new Date();
+    if (!getLS("resetPeriod").daily) {
+      setLS("resetPeriod", {
+        ...getLS("resetPeriod"),
+        daily: today.getDate(),
+      });
+    } else {
+      if (getLS("resetPeriod") !== today.getDate()) {
+        dispatch(resetFunc({ type: "completed", option: "DAILY" }));
+        setLS("resetPeriod", {
+          ...getLS("resetPeriod"),
+          daily: today.getDate(),
+        });
+      }
+    }
+    if (today.getDay() === 1 && getLS("resetPeriod").weekend === false) {
+      dispatch(resetFunc({ type: "completed", option: "WEEKEND" }));
+      setLS("resetPeriod", {
+        ...getLS("resetPeriod"),
+        weekend: true,
+      });
+    } else if (today.getDay() !== 1 && getLS("resetPeriod").weekend === true) {
+      setLS("resetPeriod", {
+        ...getLS("resetPeriod"),
+        weekend: false,
+      });
+    }
+
+    if (!getLS("resetPeriod").monthly) {
+      setLS("resetPeriod", {
+        ...getLS("resetPeriod"),
+        monthly: today.getMonth(),
+      });
+    } else {
+      if (getLS("resetPeriod") !== today.getMonth()) {
+        dispatch(resetFunc({ type: "completed", option: "MONTHLY" }));
+        setLS("resetPeriod", {
+          ...getLS("resetPeriod"),
+          monthly: today.getMonth(),
+        });
+      }
+    }
+
+    if (!getLS("resetPeriod").yearly) {
+      setLS("resetPeriod", {
+        ...getLS("resetPeriod"),
+        yearly: today.getFullYear(),
+      });
+    } else {
+      if (getLS("resetPeriod") !== today.getFullYear()) {
+        dispatch(resetFunc({ type: "completed", option: "YEARLY" }));
+        setLS("resetPeriod", {
+          ...getLS("resetPeriod"),
+          yearly: today.getFullYear(),
+        });
+      }
+    }
+  }
+};

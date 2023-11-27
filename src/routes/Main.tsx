@@ -1,10 +1,16 @@
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import TodoInput from "../components/TodoInput";
 import Todos from "../components/Todos";
 import { useAppSelector } from "../redux/hooks";
-import { selTodoPercent } from "../redux/todo/todoSlice";
-import { daylist } from "../utils";
+import {
+  ITodoState,
+  selFilteredTodos,
+  selTodoPercent,
+} from "../redux/todo/todoSlice";
+import { daylist } from "../type";
 const Header = styled.header`
   display: flex;
   flex-direction: column;
@@ -74,8 +80,12 @@ const Bar = styled.div<{ $percent: number }>`
   transition: all 0.2s ease-in-out;
 `;
 export default function Main() {
+  const { filterId } = useParams();
   const todos = useAppSelector((state) => state.todos);
   const todoPercent = useAppSelector(selTodoPercent);
+  const filteredTodos = useSelector((state: ITodoState[]) =>
+    selFilteredTodos(state, filterId?.toUpperCase())
+  );
   const [today, setToday] = useState(new Date());
   return (
     <>
@@ -90,13 +100,19 @@ export default function Main() {
           </DateBox>
           <Title>
             {todos.length
-              ? todoPercent
+              ? filterId === "all"
                 ? todoPercent + "%"
-                : "0%"
+                : Number.isNaN(filteredTodos[1])
+                ? "현재 탭의 일이 존재하지 않습니다"
+                : filteredTodos[1] + "%"
               : "할 일을 추가해주세요"}
           </Title>
           <BgBar>
-            <Bar $percent={todoPercent} />
+            <Bar
+              $percent={
+                filterId === "all" ? todoPercent : (filteredTodos[1] as number)
+              }
+            />
           </BgBar>
         </Wrap>
         <TodoInput />

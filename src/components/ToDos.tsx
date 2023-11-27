@@ -6,12 +6,12 @@ import styled from "styled-components";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import {
   ITodoState,
+  resetTodo,
   resetToDos,
   selFilteredTodos,
-  selTodoUnpackList,
 } from "../redux/todo/todoSlice";
 import { setUi } from "../redux/uiState/uiStateSlice";
-import { filterlist } from "../utils";
+import { filterlist } from "../type";
 import Todo from "./Todo";
 const Container = styled.div`
   width: 100%;
@@ -36,14 +36,14 @@ const Tab = styled.div`
     border: none;
   }
 `;
-const MenuList = styled.div`
+const SetList = styled.div`
   position: fixed;
   top: 0;
   display: flex;
   justify-content: flex-end;
   padding: 10px 10px 0 0;
 `;
-const Menu = styled.div`
+const SetIcon = styled.div`
   font-size: 1.1em;
   margin-left: 10px;
 `;
@@ -64,22 +64,24 @@ export default function Todos() {
   );
   return (
     <>
-      <MenuList>
-        <Menu
+      <SetList>
+        <SetIcon
           onClick={() => {
             dispatch(setUi({ type: "SET" }));
           }}
         >
           <i className="fa-solid fa-gear" />
-        </Menu>
-        <Menu
+        </SetIcon>
+        <SetIcon
           onClick={() => {
-            dispatch(resetToDos());
+            if (window.confirm("모두 제거하시겠습니까?")) {
+              dispatch(resetToDos());
+            }
           }}
         >
           <i className="fa-solid fa-trash" />
-        </Menu>
-      </MenuList>
+        </SetIcon>
+      </SetList>
       <Container>
         <Tabs>
           {filterlist.map((filter) => (
@@ -90,7 +92,9 @@ export default function Todos() {
         </Tabs>
         <ToDoList>
           <Todo
-            recursiveData={filterId === "all" ? toDoRedux : filteredTodos}
+            recursiveData={
+              filterId === "all" ? toDoRedux : (filteredTodos[0] as any)
+            }
             repeat={filterId === "all"}
           />
         </ToDoList>

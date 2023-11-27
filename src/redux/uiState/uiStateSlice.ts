@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { SetUiOptionType } from "../../type";
 import { todoAdapter } from "../../utils";
 import { ITodoState } from "../todo/todoSlice";
 
@@ -16,7 +17,7 @@ const initialState: IuiState = {
   currentTodo: todoAdapter.getInitialState(),
 };
 export interface ISetUiPayload {
-  type: "ADD" | "FIX" | "DEL" | "SET";
+  type: SetUiOptionType;
   id?: string;
 }
 
@@ -43,6 +44,12 @@ export const uiStateSlice = createSlice({
           state.currentTodo.id === action.payload.id
             ? (state.fixTg = !state.fixTg)
             : (state.fixTg = true);
+          break;
+        case "RESET":
+          state.todoSetTg = false;
+          state.addTg = false;
+          state.fixTg = false;
+          state.currentTodo = todoAdapter.getInitialState();
           break;
         default:
           alert("ui toggle error");

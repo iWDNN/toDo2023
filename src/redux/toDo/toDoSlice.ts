@@ -1,16 +1,17 @@
 import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { TodoOptionType } from "../../type";
 import { unpack } from "../../utils";
 import { RootState } from "../store";
 
 export interface ITodoState {
   id: string;
-  option: "NONE" | "DAILY" | "WEEKEND" | "MONTHLY" | "YEARLY";
+  option: TodoOptionType;
   text: string;
   completed: boolean;
   comment: ITodoState[];
 }
 
-export const todoSlice = createSlice({
+const todoSlice = createSlice({
   name: "todos",
   initialState: [] as ITodoState[],
   reducers: {
@@ -19,7 +20,7 @@ export const todoSlice = createSlice({
       action: PayloadAction<{
         parentId: string;
         text: string;
-        option: "NONE" | "DAILY" | "WEEKEND" | "MONTHLY" | "YEARLY";
+        option: TodoOptionType;
       }>
     ) => {
       unpack.add(state, action.payload);
@@ -32,7 +33,7 @@ export const todoSlice = createSlice({
       action: PayloadAction<{
         id: string;
         text: string;
-        option: "NONE" | "DAILY" | "WEEKEND" | "MONTHLY" | "YEARLY";
+        option: TodoOptionType;
       }>
     ) => {
       unpack.fix(state, action.payload);
@@ -40,7 +41,15 @@ export const todoSlice = createSlice({
     cmpTodo: (state, action: PayloadAction<string>) => {
       unpack.toggled(state, action.payload);
     },
-
+    resetTodo: (
+      state,
+      action: PayloadAction<{
+        type?: "completed";
+        option?: TodoOptionType | "ALL";
+      }>
+    ) => {
+      unpack.reset(state, action.payload);
+    },
     resetToDos: () => [],
   },
 });
@@ -48,23 +57,30 @@ export const todoSlice = createSlice({
 const selTodos = (state: RootState) => state.todos;
 
 export const selTodoPercent = createSelector(selTodos, (todos) => {
-  unpack.reset();
+  unpack.unpackReset();
   unpack.record(todos);
   return Math.floor((unpack.cmpArr.length / unpack.allArr.length) * 100);
 });
 export const selTodoUnpackList = createSelector(selTodos, (todos) => {
-  unpack.reset();
+  unpack.unpackReset();
   unpack.record(todos);
   return unpack.allArr;
 });
-
 export const selFilteredTodos = createSelector(
   [selTodoUnpackList, (_state, filterId) => filterId],
-  (unpackListTodos, filterId) =>
-    unpackListTodos.filter((todo) => todo.option === filterId)
+  (unpackListTodos, filterId) => [
+    unpackListTodos.filter((todo) => todo.option === filterId),
+    Math.floor(
+      (unpackListTodos
+        .filter((todo) => todo.option === filterId)
+        .filter((todo) => todo.completed).length /
+        unpackListTodos.filter((todo) => todo.option === filterId).length) *
+        100
+    ),
+  ]
 );
 
-export const { addTodo, delTodo, fixTodo, cmpTodo, resetToDos } =
+export const { addTodo, delTodo, fixTodo, cmpTodo, resetTodo, resetToDos } =
   todoSlice.actions;
 
 export default todoSlice.reducer;

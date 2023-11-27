@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import styled from "styled-components";
 import { useAppDispatch } from "../redux/hooks";
 import { addTodo } from "../redux/todo/todoSlice";
-import { DAILY, MONTHLY, NONE, WEEKEND, YEARLY } from "../type";
+import { DAILY, MONTHLY, NONE, TodoOptionType, WEEKEND, YEARLY } from "../type";
 
 const Container = styled.div`
   form {
@@ -33,7 +33,7 @@ const Container = styled.div`
 
 interface IForm {
   text: string;
-  option: "NONE" | "DAILY" | "WEEKEND" | "MONTHLY" | "YEARLY";
+  option: TodoOptionType;
 }
 export default function TodoInput() {
   const dispatch = useAppDispatch();

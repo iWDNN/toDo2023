@@ -1,4 +1,5 @@
 import React from "react";
+import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { cmpTodo, delTodo, ITodoState } from "../redux/todo/todoSlice";
@@ -76,6 +77,7 @@ interface IToDoProps {
   repeat?: boolean;
 }
 export default function Todo({ recursiveData, repeat = true }: IToDoProps) {
+  const { filterId } = useParams();
   const dispatch = useAppDispatch();
   const { todoSetTg, addTg, fixTg, currentTodo } = useAppSelector(
     (state) => state.uiState
@@ -128,7 +130,8 @@ export default function Todo({ recursiveData, repeat = true }: IToDoProps) {
             )}
             <SetGrp>
               {!todoSetTg ? (
-                !todo.completed && (
+                !todo.completed &&
+                filterId === "all" && (
                   <SetBtn
                     onClick={(e: React.FormEvent<HTMLElement>) =>
                       onBtnClick("ADD", todo, e)

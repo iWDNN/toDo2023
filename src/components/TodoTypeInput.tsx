@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { addTodo, fixTodo } from "../redux/todo/todoSlice";
 import { setCurTodo, setUi } from "../redux/uiState/uiStateSlice";
-import { DAILY, MONTHLY, NONE, WEEKEND, YEARLY } from "../type";
+import { DAILY, MONTHLY, NONE, TodoOptionType, WEEKEND, YEARLY } from "../type";
 import { todoAdapter } from "../utils";
 
 const Ct = styled.div<{ type: "FIX" | "ADD" }>`
@@ -51,7 +51,7 @@ interface IProps {
 }
 interface IFormState {
   formText: string;
-  formOption: "NONE" | "DAILY" | "WEEKEND" | "MONTHLY" | "YEARLY";
+  formOption: TodoOptionType;
 }
 export default function TodoTypeInput({ type }: IProps) {
   const dispatch = useAppDispatch();
@@ -94,6 +94,9 @@ export default function TodoTypeInput({ type }: IProps) {
         onClick={(e: React.FormEvent<HTMLFormElement>) => {
           e.stopPropagation();
         }}
+        // onBlur={() => {
+        //   dispatch(setUi({ type: "RESET" }));
+        // }}
       >
         <select {...register("formOption")}>
           <option value={NONE}>미정</option>
