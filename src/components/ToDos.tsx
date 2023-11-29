@@ -6,7 +6,6 @@ import styled from "styled-components";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import {
   ITodoState,
-  resetTodo,
   resetToDos,
   selFilteredTodos,
 } from "../redux/todo/todoSlice";
@@ -37,8 +36,9 @@ const Tab = styled.div`
   }
 `;
 const SetList = styled.div`
-  position: fixed;
-  top: 0;
+  position: absolute;
+  top: -10px;
+  right: 10px;
   display: flex;
   justify-content: flex-end;
   padding: 10px 10px 0 0;
@@ -49,6 +49,7 @@ const SetIcon = styled.div`
 `;
 
 const ToDoList = styled.div`
+  position: relative;
   height: 90vh;
   overflow-y: scroll;
   padding: 10px;
@@ -64,24 +65,6 @@ export default function Todos() {
   );
   return (
     <>
-      <SetList>
-        <SetIcon
-          onClick={() => {
-            dispatch(setUi({ type: "SET" }));
-          }}
-        >
-          <i className="fa-solid fa-gear" />
-        </SetIcon>
-        <SetIcon
-          onClick={() => {
-            if (window.confirm("모두 제거하시겠습니까?")) {
-              dispatch(resetToDos());
-            }
-          }}
-        >
-          <i className="fa-solid fa-trash" />
-        </SetIcon>
-      </SetList>
       <Container>
         <Tabs>
           {filterlist.map((filter) => (
@@ -91,6 +74,24 @@ export default function Todos() {
           ))}
         </Tabs>
         <ToDoList>
+          <SetList>
+            <SetIcon
+              onClick={() => {
+                dispatch(setUi({ type: "SET" }));
+              }}
+            >
+              <i className="fa-solid fa-gear" />
+            </SetIcon>
+            <SetIcon
+              onClick={() => {
+                if (window.confirm("모두 제거하시겠습니까?")) {
+                  dispatch(resetToDos());
+                }
+              }}
+            >
+              <i className="fa-solid fa-trash" />
+            </SetIcon>
+          </SetList>
           <Todo
             recursiveData={
               filterId === "all" ? toDoRedux : (filteredTodos[0] as any)

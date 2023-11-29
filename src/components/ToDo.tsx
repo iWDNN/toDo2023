@@ -1,8 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { cmpTodo, delTodo, ITodoState } from "../redux/todo/todoSlice";
+import {
+  cmpTodo,
+  delTodo,
+  foldTodo,
+  ITodoState,
+} from "../redux/todo/todoSlice";
 import { setCurTodo, setUi } from "../redux/uiState/uiStateSlice";
 import TodoTypeInput from "./TodoTypeInput";
 
@@ -12,7 +17,7 @@ const Container = styled.div`
   user-select: none;
 `;
 const Content = styled.div``;
-const ShowCt = styled.div<{ $cmp: boolean }>`
+const ShowCt = styled.div<{ $cmp: boolean; $setTg: boolean }>`
   height: 40px;
   display: grid;
   grid-template-columns: 85% 15%;
@@ -21,6 +26,7 @@ const ShowCt = styled.div<{ $cmp: boolean }>`
   border-left: 3px solid ${(props) => (props.$cmp ? "#4cd137" : "none")};
   border-top-left-radius: 2px;
   border-bottom-left-radius: 2px;
+  background-color: ${(props) => props.$setTg && "#f2f2f2"};
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
   opacity: ${(props) => props.$cmp && "0.35"};
   cursor: pointer;
@@ -70,7 +76,7 @@ const SetBtn = styled.div`
     margin: 0 20px;
   }
 `;
-const SubCt = styled.div``;
+const AddCt = styled.div``;
 
 interface IToDoProps {
   recursiveData: ITodoState[];
@@ -97,7 +103,8 @@ export default function Todo({ recursiveData, repeat = true }: IToDoProps) {
         dispatch(setUi({ type, id: todo.id }));
         break;
       case "DEL":
-        dispatch(delTodo(todo.id));
+        if (window.confirm("이 항목을 제거하시겠습니까?"))
+          dispatch(delTodo(todo.id));
     }
     dispatch(setCurTodo(todo));
   };
@@ -108,9 +115,10 @@ export default function Todo({ recursiveData, repeat = true }: IToDoProps) {
         <Content key={todo.id}>
           <ShowCt
             onClick={() => {
-              dispatch(cmpTodo(todo.id));
+              if (!todoSetTg) dispatch(cmpTodo(todo.id));
             }}
             $cmp={todo.completed}
+            $setTg={todoSetTg}
           >
             {fixTg && currentTodo.id === todo.id ? (
               <TodoTypeInput type="FIX" />
@@ -132,24 +140,42 @@ export default function Todo({ recursiveData, repeat = true }: IToDoProps) {
               {!todoSetTg ? (
                 !todo.completed &&
                 filterId === "all" && (
-                  <SetBtn
-                    onClick={(e: React.FormEvent<HTMLElement>) =>
-                      onBtnClick("ADD", todo, e)
-                    }
-                  >
-                    <i className="fa-solid fa-plus" />
-                  </SetBtn>
+                  <>
+                    {JSON.stringify(todo.comment) !== "[]" && (
+                      <SetBtn
+                        onClick={(e: React.FormEvent<HTMLElement>) => {
+                          e.stopPropagation();
+                          dispatch(foldTodo(todo.id));
+                        }}
+                      >
+                        {todo.isFold ? (
+                          <i className="fa-solid fa-angle-down" />
+                        ) : (
+                          <i className="fa-solid fa-angle-up" />
+                        )}
+                      </SetBtn>
+                    )}
+                  </>
                 )
               ) : (
                 <>
                   {!todo.completed && (
-                    <SetBtn
-                      onClick={(e: React.FormEvent<HTMLElement>) =>
-                        onBtnClick("FIX", todo, e)
-                      }
-                    >
-                      <i className="fa-solid fa-pen" />
-                    </SetBtn>
+                    <>
+                      <SetBtn
+                        onClick={(e: React.FormEvent<HTMLElement>) =>
+                          onBtnClick("ADD", todo, e)
+                        }
+                      >
+                        <i className="fa-solid fa-plus" />
+                      </SetBtn>
+                      <SetBtn
+                        onClick={(e: React.FormEvent<HTMLElement>) =>
+                          onBtnClick("FIX", todo, e)
+                        }
+                      >
+                        <i className="fa-solid fa-pen" />
+                      </SetBtn>
+                    </>
                   )}
                   <SetBtn
                     onClick={(e: React.FormEvent<HTMLElement>) =>
@@ -163,11 +189,13 @@ export default function Todo({ recursiveData, repeat = true }: IToDoProps) {
             </SetGrp>
           </ShowCt>
           {addTg && currentTodo.id === todo.id && (
-            <SubCt>
+            <AddCt>
               <TodoTypeInput type="ADD" />
-            </SubCt>
+            </AddCt>
           )}
-          {repeat && todo.comment && <Todo recursiveData={todo.comment} />}
+          {repeat && todo.comment && !todo.isFold && (
+            <Todo recursiveData={todo.comment} />
+          )}
         </Content>
       ))}
     </Container>

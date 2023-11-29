@@ -11,12 +11,14 @@ import {
   selTodoPercent,
 } from "../redux/todo/todoSlice";
 import { daylist } from "../type";
+
 const Header = styled.header`
   display: flex;
   flex-direction: column;
   align-items: center;
   padding-top: 20px;
   & > *:nth-child(1) {
+    //header
     & > h1 {
       font-size: 2.5em;
       @media screen and (min-width: 1040px) {
@@ -28,6 +30,7 @@ const Header = styled.header`
     }
   }
   & > *:nth-child(2) {
+    // todoinput
     margin-top: 20px;
   }
 `;

@@ -10,6 +10,7 @@ export const todoAdapter = {
       completed: false,
       comment: [],
       option: "NONE",
+      isFold: false,
     };
   },
 };
@@ -136,6 +137,33 @@ export const unpack = {
         ) {
           temp = value;
           if (unpack.toggled(value, id, temp)) {
+            return true;
+          }
+        }
+      }
+      temp = [];
+    }
+  },
+  fold: (state: ITodoState[], id: string, temp: ITodoState[] = []) => {
+    for (const todo of state) {
+      for (const [key, value] of Object.entries(todo) as any) {
+        if (key === "id" && value === id) {
+          if (JSON.stringify(temp) === "[]") {
+            temp = state;
+          }
+          const findIdx = temp.findIndex((el) => el.id === id);
+          temp[findIdx] = {
+            ...temp[findIdx],
+            isFold: !temp[findIdx].isFold,
+          };
+          return true;
+        } else if (
+          key === "comment" &&
+          Array.isArray(value) &&
+          value.length > 0
+        ) {
+          temp = value;
+          if (unpack.fold(value, id, temp)) {
             return true;
           }
         }

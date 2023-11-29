@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import styled from "styled-components";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
@@ -94,20 +94,24 @@ export default function TodoTypeInput({ type }: IProps) {
         onClick={(e: React.FormEvent<HTMLFormElement>) => {
           e.stopPropagation();
         }}
-        // onBlur={() => {
-        //   dispatch(setUi({ type: "RESET" }));
-        // }}
       >
-        <select {...register("formOption")}>
+        <select
+          {...register("formOption")}
+          onChange={() => {
+            setFocus("formText");
+          }}
+        >
           <option value={NONE}>미정</option>
           <option value={DAILY}>일간</option>
           <option value={WEEKEND}>주간</option>
           <option value={MONTHLY}>월간</option>
           <option value={YEARLY}>연간</option>
-          <input type="submit" />
         </select>
         <input
           {...register("formText")}
+          onBlur={() => {
+            dispatch(setUi({ type }));
+          }}
           placeholder={type !== "FIX" ? "할 일 추가" : "할 일 수정"}
           autoComplete="off"
         />

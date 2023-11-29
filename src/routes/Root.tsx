@@ -8,7 +8,7 @@ import { resetPeriodLS } from "../utils";
 const Container = styled.div`
   min-height: 100vh;
   display: grid;
-  grid-template-columns: 48% 4% 48%;
+  grid-template-columns: 48% 4% 48%; //[Header.tsx, div(EmptyElement),  Todos.tsx]
   align-items: center;
   @media screen and (max-width: 1040px) {
     display: flex;

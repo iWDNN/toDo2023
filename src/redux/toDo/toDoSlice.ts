@@ -9,6 +9,7 @@ export interface ITodoState {
   text: string;
   completed: boolean;
   comment: ITodoState[];
+  isFold: boolean;
 }
 
 const todoSlice = createSlice({
@@ -40,6 +41,9 @@ const todoSlice = createSlice({
     },
     cmpTodo: (state, action: PayloadAction<string>) => {
       unpack.toggled(state, action.payload);
+    },
+    foldTodo: (state, action: PayloadAction<string>) => {
+      unpack.fold(state, action.payload);
     },
     resetTodo: (
       state,
@@ -80,7 +84,14 @@ export const selFilteredTodos = createSelector(
   ]
 );
 
-export const { addTodo, delTodo, fixTodo, cmpTodo, resetTodo, resetToDos } =
-  todoSlice.actions;
+export const {
+  addTodo,
+  delTodo,
+  fixTodo,
+  cmpTodo,
+  foldTodo,
+  resetTodo,
+  resetToDos,
+} = todoSlice.actions;
 
 export default todoSlice.reducer;
