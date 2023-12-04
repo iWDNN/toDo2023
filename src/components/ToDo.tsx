@@ -1,203 +1,136 @@
-import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import React, { useRef, useState } from "react";
 import styled from "styled-components";
-import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import {
-  cmpTodo,
-  delTodo,
-  foldTodo,
-  ITodoState,
-} from "../redux/todo/todoSlice";
-import { setCurTodo, setUi } from "../redux/uiState/uiStateSlice";
+import { useAppDispatch } from "../redux/hooks";
+import { cmpTodo, ITodoState } from "../redux/todo/todoSlice";
+import Todos from "./Todos";
 import TodoTypeInput from "./TodoTypeInput";
 
-const Container = styled.div`
-  min-width: 480px;
-  margin-left: 20px;
-  user-select: none;
+const Content = styled.div`
+  width: 100%;
+  height: 100%;
+  margin: 2px 0;
 `;
-const Content = styled.div``;
-const ShowCt = styled.div<{ $cmp: boolean; $setTg: boolean }>`
+
+const ViewBox = styled.div<{ $cmp: boolean }>`
+  width: 100%;
   height: 40px;
   display: grid;
-  grid-template-columns: 85% 15%;
+  grid-template-columns: 10% 80% 10%;
   align-items: center;
-  margin: 10px 0;
-  border-left: 3px solid ${(props) => (props.$cmp ? "#4cd137" : "none")};
-  border-top-left-radius: 2px;
-  border-bottom-left-radius: 2px;
-  background-color: ${(props) => props.$setTg && "#f2f2f2"};
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
-  opacity: ${(props) => props.$cmp && "0.35"};
+  border-radius: 5px;
+  transition: 0.1s box-shadow ease-in-out;
   cursor: pointer;
-  transition: box-shadow 0.2s ease-in-out;
-  &:hover {
-    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.06);
+  &:hover,
+  &:focus {
+    background-color: ${(props) => props.theme.elementColor.boxBg};
   }
-  & > * {
-    width: 100%;
+  // completed effect
+  opacity: ${(props) => props.$cmp && "0.5"};
+  & > div:nth-child(3) {
+    //check icon color
+    & > i {
+      color: ${(props) => props.$cmp && "#4cd137"};
+      border: ${(props) => props.$cmp && "1.5px solid #4cd137"};
+    }
   }
-  & > div:nth-child(1) {
-    & > div:nth-child(2) {
-      h1 {
-        text-decoration: ${(props) => props.$cmp && "line-through"};
-      }
+  & > div:nth-child(2) {
+    //title line-through
+    & > h1 {
+      text-decoration: ${(props) => props.$cmp && "line-through"};
     }
   }
 `;
-const FixBox = styled.div`
-  display: grid;
-  grid-template-columns: 15% 85%;
-`;
 
-const Option = styled.div`
+const IsCheck = styled.div<{ $cmp?: boolean }>`
   display: flex;
   justify-content: center;
   align-items: center;
-  color: black;
-  font-size: 0.8em;
-  font-weight: 700;
+  i {
+    padding: 4px;
+    font-size: 11px;
+    color: #7a7a7a;
+    border: 1.5px solid #7a7a7a;
+    border-radius: 5px;
+    transition: 0.2s all ease-in-out;
+    &:hover {
+      color: white;
+      border: 1.5px solid white;
+    }
+  }
 `;
-const Title = styled.div`
+const Title = styled.div<{ $cmp?: boolean }>`
   display: flex;
   align-items: center;
   h1 {
-    font-size: 0.95em;
+    font-size: 15px;
   }
 `;
-
-const SetGrp = styled.div`
+const IsFold = styled.div`
   display: flex;
-  justify-content: flex-end;
-`;
-const SetBtn = styled.div`
-  margin-left: 20px;
-  &:last-child {
-    margin: 0 20px;
+  justify-content: center;
+  align-items: center;
+  div {
+    i {
+      padding: 4px;
+    }
   }
 `;
-const AddCt = styled.div``;
 
-interface IToDoProps {
-  recursiveData: ITodoState[];
-  repeat?: boolean;
+const AddBox = styled.div``;
+interface ITodoProps {
+  todoData: ITodoState;
 }
-export default function Todo({ recursiveData, repeat = true }: IToDoProps) {
-  const { filterId } = useParams();
-  const dispatch = useAppDispatch();
-  const { todoSetTg, addTg, fixTg, currentTodo } = useAppSelector(
-    (state) => state.uiState
-  );
+interface IUiState {
+  isFold: boolean;
+}
 
-  const onBtnClick = (
-    type: string,
-    todo: ITodoState,
-    e: React.FormEvent<HTMLElement>
-  ) => {
+export default function Todo({
+  todoData: { id, text, comment, completed },
+}: ITodoProps) {
+  const dispatch = useAppDispatch();
+  const [uiState, setUiState] = useState<IUiState>({
+    isFold: true,
+  });
+
+  const onClickFold = (e: React.FormEvent<HTMLElement>) => {
+    e.currentTarget.focus();
+    setUiState((prev) => {
+      return { ...prev, isFold: !prev.isFold };
+    });
+  };
+  const onClickCmp = (e: React.FormEvent<HTMLElement>, id: string) => {
     e.stopPropagation();
-    switch (type) {
-      case "ADD":
-        dispatch(setUi({ type, id: todo.id }));
-        break;
-      case "FIX":
-        dispatch(setUi({ type, id: todo.id }));
-        break;
-      case "DEL":
-        if (window.confirm("이 항목을 제거하시겠습니까?"))
-          dispatch(delTodo(todo.id));
-    }
-    dispatch(setCurTodo(todo));
+    dispatch(cmpTodo(id));
   };
 
   return (
-    <Container>
-      {recursiveData.map((todo) => (
-        <Content key={todo.id}>
-          <ShowCt
-            onClick={() => {
-              if (!todoSetTg) dispatch(cmpTodo(todo.id));
-            }}
-            $cmp={todo.completed}
-            $setTg={todoSetTg}
-          >
-            {fixTg && currentTodo.id === todo.id ? (
-              <TodoTypeInput type="FIX" />
-            ) : (
-              <FixBox>
-                <Option
-                  onClick={() => {
-                    dispatch(cmpTodo(todo.id));
-                  }}
-                >
-                  {todo.option !== "NONE" && todo.option}
-                </Option>
-                <Title>
-                  <h1>{todo.text}</h1>
-                </Title>
-              </FixBox>
-            )}
-            <SetGrp>
-              {!todoSetTg ? (
-                !todo.completed &&
-                filterId === "all" && (
-                  <>
-                    {JSON.stringify(todo.comment) !== "[]" && (
-                      <SetBtn
-                        onClick={(e: React.FormEvent<HTMLElement>) => {
-                          e.stopPropagation();
-                          dispatch(foldTodo(todo.id));
-                        }}
-                      >
-                        {todo.isFold ? (
-                          <i className="fa-solid fa-angle-down" />
-                        ) : (
-                          <i className="fa-solid fa-angle-up" />
-                        )}
-                      </SetBtn>
-                    )}
-                  </>
-                )
+    <Content>
+      <ViewBox
+        $cmp={completed}
+        onClick={(e: React.FormEvent<HTMLElement>) => onClickFold(e)}
+      >
+        <IsFold>
+          {JSON.stringify(comment) !== "[]" && ( // comment가 존재할 경우
+            <div>
+              {uiState.isFold ? (
+                <i className="fa-solid fa-angle-right" />
               ) : (
-                <>
-                  {!todo.completed && (
-                    <>
-                      <SetBtn
-                        onClick={(e: React.FormEvent<HTMLElement>) =>
-                          onBtnClick("ADD", todo, e)
-                        }
-                      >
-                        <i className="fa-solid fa-plus" />
-                      </SetBtn>
-                      <SetBtn
-                        onClick={(e: React.FormEvent<HTMLElement>) =>
-                          onBtnClick("FIX", todo, e)
-                        }
-                      >
-                        <i className="fa-solid fa-pen" />
-                      </SetBtn>
-                    </>
-                  )}
-                  <SetBtn
-                    onClick={(e: React.FormEvent<HTMLElement>) =>
-                      onBtnClick("DEL", todo, e)
-                    }
-                  >
-                    <i className="fa-solid fa-trash" />
-                  </SetBtn>
-                </>
+                <i className="fa-solid fa-angle-down" />
               )}
-            </SetGrp>
-          </ShowCt>
-          {addTg && currentTodo.id === todo.id && (
-            <AddCt>
-              <TodoTypeInput type="ADD" />
-            </AddCt>
+            </div>
           )}
-          {repeat && todo.comment && !todo.isFold && (
-            <Todo recursiveData={todo.comment} />
-          )}
-        </Content>
-      ))}
-    </Container>
+        </IsFold>
+        <Title>
+          <h1>{text}</h1>
+        </Title>
+        <IsCheck
+          onClick={(e: React.FormEvent<HTMLElement>) => onClickCmp(e, id)}
+        >
+          <i className="fa-solid fa-check" />
+        </IsCheck>
+      </ViewBox>
+      <AddBox>{/* <TodoTypeInput />  */}</AddBox>
+      {!uiState.isFold && <Todos recursiveData={comment} />}
+    </Content>
   );
 }

@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import TodoInput from "../components/TodoInput";
-import Todos from "../components/Todos";
+import TodoPage from "../components/TodoPage";
 import { useAppSelector } from "../redux/hooks";
 import {
   ITodoState,
@@ -71,14 +71,14 @@ const Title = styled.h1`
 const BgBar = styled.div`
   width: 80px;
   height: 5px;
-  background-color: #1212;
   border-radius: 7px;
-  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.06);
+  background-color: ${(props) => props.theme.elementColor.inputBg};
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.12);
 `;
 const Bar = styled.div<{ $percent: number }>`
   width: ${(props) => (props.$percent ? props.$percent + "%" : "0%")};
   height: 100%;
-  background-color: #4cd137;
+  background-color: #389729;
   border-radius: inherit;
   transition: all 0.2s ease-in-out;
 `;
@@ -121,7 +121,7 @@ export default function Main() {
         <TodoInput />
       </Header>
       <div />
-      <Todos />
+      <TodoPage />
     </>
   );
 }

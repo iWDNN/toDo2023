@@ -1,5 +1,4 @@
 import { createBrowserRouter } from "react-router-dom";
-import Todos from "./components/Todos";
 import Main from "./routes/Main";
 import Root from "./routes/Root";
 

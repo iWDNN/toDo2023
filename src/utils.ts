@@ -10,7 +10,6 @@ export const todoAdapter = {
       completed: false,
       comment: [],
       option: "NONE",
-      isFold: false,
     };
   },
 };
@@ -57,28 +56,28 @@ export const unpack = {
       }
     }
   },
-  delete: (state: ITodoState[], id: string, temp: ITodoState[] = []) => {
+  delete: (state: ITodoState[], id: string, beforeArr: ITodoState[] = []) => {
     for (const todo of state) {
       for (const [key, value] of Object.entries(todo) as any) {
         if (key === "id" && value === id) {
-          if (JSON.stringify(temp) === "[]") {
-            temp = state;
+          if (JSON.stringify(beforeArr) === "[]") {
+            beforeArr = state;
           }
-          const findIdx = temp.findIndex((el) => el.id === id);
-          temp.splice(findIdx, 1);
+          const findIdx = beforeArr.findIndex((el) => el.id === id);
+          beforeArr.splice(findIdx, 1);
           return true;
         } else if (
           key === "comment" &&
           Array.isArray(value) &&
           value.length > 0
         ) {
-          temp = value;
-          if (unpack.delete(value, id, temp)) {
+          beforeArr = value;
+          if (unpack.delete(value, id, beforeArr)) {
             return true;
           }
         }
       }
-      temp = [];
+      beforeArr = [];
     }
   },
   fix: (
@@ -88,17 +87,19 @@ export const unpack = {
       text: string;
       option: TodoOptionType;
     },
-    temp: ITodoState[] = []
+    beforeArr: ITodoState[] = []
   ) => {
     for (const todo of state) {
       for (const [key, value] of Object.entries(todo) as any) {
         if (key === "id" && value === payload.id) {
-          if (JSON.stringify(temp) === "[]") {
-            temp = state;
+          // todo.text = payload.text;
+          // todo.option = payload.option;
+          if (JSON.stringify(beforeArr) === "[]") {
+            beforeArr = state;
           }
-          const findIdx = temp.findIndex((el) => el.id === value);
-          temp[findIdx] = {
-            ...temp[findIdx],
+          const findIdx = beforeArr.findIndex((el) => el.id === value);
+          beforeArr[findIdx] = {
+            ...beforeArr[findIdx],
             text: payload.text,
             option: payload.option,
           };
@@ -108,67 +109,39 @@ export const unpack = {
           Array.isArray(value) &&
           value.length > 0
         ) {
-          temp = value;
-          if (unpack.fix(value, payload, temp)) {
+          beforeArr = value;
+          if (unpack.fix(value, payload, beforeArr)) {
             return true;
           }
         }
       }
-      temp = [];
+      beforeArr = [];
     }
   },
-  toggled: (state: ITodoState[], id: string, temp: ITodoState[] = []) => {
+  complete: (state: ITodoState[], id: string) => {
     for (const todo of state) {
       for (const [key, value] of Object.entries(todo) as any) {
         if (key === "id" && value === id) {
-          if (JSON.stringify(temp) === "[]") {
-            temp = state;
-          }
-          const findIdx = temp.findIndex((el) => el.id === id);
-          temp[findIdx] = {
-            ...temp[findIdx],
-            completed: !temp[findIdx].completed,
-          };
+          todo.completed = !todo.completed;
+          // if (JSON.stringify(beforeArr) === "[]") {
+          //   beforeArr = state;
+          // }
+          // const findIdx = beforeArr.findIndex((el) => el.id === id);
+          // beforeArr[findIdx] = {
+          //   ...beforeArr[findIdx],
+          //   completed: !beforeArr[findIdx].completed,
+          // };
           return true;
         } else if (
           key === "comment" &&
           Array.isArray(value) &&
           value.length > 0
         ) {
-          temp = value;
-          if (unpack.toggled(value, id, temp)) {
+          if (unpack.complete(value, id)) {
             return true;
           }
         }
       }
-      temp = [];
-    }
-  },
-  fold: (state: ITodoState[], id: string, temp: ITodoState[] = []) => {
-    for (const todo of state) {
-      for (const [key, value] of Object.entries(todo) as any) {
-        if (key === "id" && value === id) {
-          if (JSON.stringify(temp) === "[]") {
-            temp = state;
-          }
-          const findIdx = temp.findIndex((el) => el.id === id);
-          temp[findIdx] = {
-            ...temp[findIdx],
-            isFold: !temp[findIdx].isFold,
-          };
-          return true;
-        } else if (
-          key === "comment" &&
-          Array.isArray(value) &&
-          value.length > 0
-        ) {
-          temp = value;
-          if (unpack.fold(value, id, temp)) {
-            return true;
-          }
-        }
-      }
-      temp = [];
     }
   },
   record(state: ITodoState[]) {
@@ -194,17 +167,16 @@ export const unpack = {
     payload: {
       type?: "completed";
       option?: "ALL" | TodoOptionType;
+      value: boolean;
     }
   ) {
     for (const todo of state) {
       for (const [key, value] of Object.entries(todo)) {
         if (payload.type === "completed") {
-          if (key === "completed" && value === true) {
-            if (todo.option === payload.option) {
-              todo.completed = false;
-            } else if (payload.option === "ALL") {
-              todo.completed = false;
-            }
+          if (todo.option === payload.option) {
+            todo.completed = payload.value;
+          } else if (payload.option === "ALL") {
+            todo.completed = payload.value;
           } else if (key === "comment" && value.length > 0) {
             if (unpack.reset(value, payload)) {
               return true;
@@ -247,7 +219,9 @@ export const resetPeriodLS = (dispatch: Function, resetFunc: Function) => {
       });
     } else {
       if (getLS("resetPeriod") !== today.getDate()) {
-        dispatch(resetFunc({ type: "completed", option: "DAILY" }));
+        dispatch(
+          resetFunc({ type: "completed", option: "DAILY", value: false })
+        );
         setLS("resetPeriod", {
           ...getLS("resetPeriod"),
           daily: today.getDate(),
@@ -255,7 +229,9 @@ export const resetPeriodLS = (dispatch: Function, resetFunc: Function) => {
       }
     }
     if (today.getDay() === 1 && getLS("resetPeriod").weekend === false) {
-      dispatch(resetFunc({ type: "completed", option: "WEEKEND" }));
+      dispatch(
+        resetFunc({ type: "completed", option: "WEEKEND", value: false })
+      );
       setLS("resetPeriod", {
         ...getLS("resetPeriod"),
         weekend: true,
@@ -274,7 +250,9 @@ export const resetPeriodLS = (dispatch: Function, resetFunc: Function) => {
       });
     } else {
       if (getLS("resetPeriod") !== today.getMonth()) {
-        dispatch(resetFunc({ type: "completed", option: "MONTHLY" }));
+        dispatch(
+          resetFunc({ type: "completed", option: "MONTHLY", value: false })
+        );
         setLS("resetPeriod", {
           ...getLS("resetPeriod"),
           monthly: today.getMonth(),
@@ -289,7 +267,9 @@ export const resetPeriodLS = (dispatch: Function, resetFunc: Function) => {
       });
     } else {
       if (getLS("resetPeriod") !== today.getFullYear()) {
-        dispatch(resetFunc({ type: "completed", option: "YEARLY" }));
+        dispatch(
+          resetFunc({ type: "completed", option: "YEARLY", value: false })
+        );
         setLS("resetPeriod", {
           ...getLS("resetPeriod"),
           yearly: today.getFullYear(),

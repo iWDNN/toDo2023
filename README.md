@@ -11,3 +11,5 @@
 - all / daily / monthly / yearly
 
 - date
+
+- ui state rework

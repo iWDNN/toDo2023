@@ -22,7 +22,7 @@ function Root() {
   const dispatch = useAppDispatch();
   useEffect(() => {
     pathname === "/" && navigate("todo/all");
-    resetPeriodLS(dispatch, resetTodo);
+    // resetPeriodLS(dispatch, resetTodo);
   }, []);
   return (
     <Container>

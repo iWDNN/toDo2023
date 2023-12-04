@@ -13,8 +13,7 @@ const Container = styled.div`
       border-top-left-radius: 7px;
       border-bottom-left-radius: 7px;
       outline: none;
-      background-color: white;
-      box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.06);
+      /* box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.06); */
       option {
       }
     }
@@ -25,7 +24,7 @@ const Container = styled.div`
       border: none;
       border-top-right-radius: 7px;
       border-bottom-right-radius: 7px;
-      box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.06);
+      /* box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.06); */
       outline: none;
     }
   }

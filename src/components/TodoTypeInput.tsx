@@ -25,8 +25,7 @@ const Ct = styled.div<{ type: "FIX" | "ADD" }>`
       border-top-left-radius: 7px;
       border-bottom-left-radius: 7px;
       outline: none;
-      background-color: #f4f4f4;
-      box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.06);
+      /* box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.06); */
       option {
       }
     }
@@ -37,8 +36,7 @@ const Ct = styled.div<{ type: "FIX" | "ADD" }>`
       border: none;
       border-top-right-radius: 7px;
       border-bottom-right-radius: 7px;
-      background-color: #f4f4f4;
-      box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.06);
+      /* box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.06); */
       outline: none;
       &:focus {
         border: 1px solid #2d2d2d;
@@ -98,7 +96,7 @@ export default function TodoTypeInput({ type }: IProps) {
         <select
           {...register("formOption")}
           onChange={() => {
-            setFocus("formText");
+            setFocus("formText"); // enter submit
           }}
         >
           <option value={NONE}>미정</option>
@@ -108,9 +106,11 @@ export default function TodoTypeInput({ type }: IProps) {
           <option value={YEARLY}>연간</option>
         </select>
         <input
-          {...register("formText")}
+          {...register("formText", {
+            required: true,
+          })}
           onBlur={() => {
-            dispatch(setUi({ type }));
+            // dispatch(setUi({ type: "RESET" }));
           }}
           placeholder={type !== "FIX" ? "할 일 추가" : "할 일 수정"}
           autoComplete="off"
