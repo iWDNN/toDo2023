@@ -4,11 +4,7 @@ import { Link, useParams } from "react-router-dom";
 import uuid from "react-uuid";
 import styled from "styled-components";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import {
-  ITodoState,
-  resetToDos,
-  selFilteredTodos,
-} from "../redux/todo/todoSlice";
+import { ITodoState, selFilteredTodos } from "../redux/todo/todoSlice";
 import { setUi } from "../redux/uiState/uiStateSlice";
 import { filterlist } from "../type";
 import Todos from "./Todos";
@@ -68,11 +64,10 @@ const ToDoList = styled.div`
 export default function TodoPage() {
   const { filterId } = useParams();
 
-  const dispatch = useAppDispatch();
   const toDoRedux = useAppSelector((state) => state.todos);
-  const filteredTodos = useSelector((state: ITodoState[]) =>
+  const unpackFilteredArr = useSelector((state: ITodoState[]) =>
     selFilteredTodos(state, filterId?.toUpperCase())
-  );
+  )[0];
 
   return (
     <>
@@ -90,7 +85,7 @@ export default function TodoPage() {
           ))}
         </Tabs>
         <ToDoList>
-          <SetList>
+          {/* <SetList>
             <SetIcon
               onClick={() => {
                 dispatch(setUi({ type: "SET" }));
@@ -107,11 +102,9 @@ export default function TodoPage() {
             >
               <i className="fa-solid fa-trash" />
             </SetIcon>
-          </SetList>
+          </SetList> */}
           <Todos
-            recursiveData={
-              filterId === "all" ? toDoRedux : (filteredTodos[0] as any)
-            }
+            recursiveData={filterId === "all" ? toDoRedux : unpackFilteredArr}
             // repeat={filterId === "all"}
           />
         </ToDoList>

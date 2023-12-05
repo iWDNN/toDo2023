@@ -9,6 +9,7 @@ export interface ITodoState {
   text: string;
   completed: boolean;
   comment: ITodoState[];
+  isHide: boolean;
 }
 
 const todoSlice = createSlice({
@@ -41,6 +42,9 @@ const todoSlice = createSlice({
     cmpTodo: (state, action: PayloadAction<string>) => {
       unpack.complete(state, action.payload);
     },
+    hideTodo: (state, action: PayloadAction<string>) => {
+      unpack.hide(state, action.payload);
+    },
     resetTodo: (
       state,
       action: PayloadAction<{
@@ -57,31 +61,41 @@ const todoSlice = createSlice({
 
 const selTodos = (state: RootState) => state.todos;
 
-export const selTodoPercent = createSelector(selTodos, (todos) => {
-  unpack.unpackReset();
-  unpack.record(todos);
-  return Math.floor((unpack.cmpArr.length / unpack.allArr.length) * 100);
-});
 export const selTodoUnpackList = createSelector(selTodos, (todos) => {
+  // complete 기능이 사용가능 한 가장 하위 투두의 배열
   unpack.unpackReset();
-  unpack.record(todos);
+  unpack.record2(todos);
   return unpack.allArr;
 });
+
 export const selFilteredTodos = createSelector(
   [selTodoUnpackList, (_state, filterId) => filterId],
-  (unpackListTodos, filterId) => [
-    unpackListTodos.filter((todo) => todo.option === filterId),
+  (unpackList, filterId): [ITodoState[], number] => [
+    unpackList.filter((todo) =>
+      filterId === "ALL" ? unpackList : todo.option === filterId
+    ),
     Math.floor(
-      (unpackListTodos
-        .filter((todo) => todo.option === filterId)
+      (unpackList
+        .filter((todo) =>
+          filterId === "ALL" ? unpackList : todo.option === filterId
+        )
         .filter((todo) => todo.completed).length /
-        unpackListTodos.filter((todo) => todo.option === filterId).length) *
+        unpackList.filter((todo) =>
+          filterId === "ALL" ? unpackList : todo.option === filterId
+        ).length) *
         100
     ),
   ]
 );
 
-export const { addTodo, delTodo, fixTodo, cmpTodo, resetTodo, resetToDos } =
-  todoSlice.actions;
+export const {
+  addTodo,
+  delTodo,
+  fixTodo,
+  cmpTodo,
+  hideTodo,
+  resetTodo,
+  resetToDos,
+} = todoSlice.actions;
 
 export default todoSlice.reducer;

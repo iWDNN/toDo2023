@@ -8,6 +8,7 @@ export interface IuiState {
   addTg: boolean;
   fixTg: boolean;
   currentTodo: ITodoState;
+  depth: number;
 }
 
 const initialState: IuiState = {
@@ -15,6 +16,7 @@ const initialState: IuiState = {
   addTg: false,
   fixTg: false,
   currentTodo: todoAdapter.getInitialState(),
+  depth: 0,
 };
 export interface ISetUiPayload {
   type: SetUiOptionType;
@@ -58,9 +60,16 @@ export const uiStateSlice = createSlice({
     setCurTodo: (state, action: PayloadAction<ITodoState>) => {
       state.currentTodo = action.payload;
     },
+    increaseDepth: (state) => {
+      state.depth += 1;
+    },
+    resetDepth: (state) => {
+      state.depth = 0;
+    },
   },
 });
 
-export const { setUi, setCurTodo } = uiStateSlice.actions;
+export const { setUi, setCurTodo, increaseDepth, resetDepth } =
+  uiStateSlice.actions;
 
 export default uiStateSlice.reducer;

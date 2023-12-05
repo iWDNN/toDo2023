@@ -1,11 +1,12 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { useAppDispatch } from "../redux/hooks";
-import { cmpTodo, ITodoState } from "../redux/todo/todoSlice";
+import { cmpTodo, hideTodo, ITodoState } from "../redux/todo/todoSlice";
+import { checkEmptyArr, todoAdapter } from "../utils";
 import Todos from "./Todos";
 import TodoTypeInput from "./TodoTypeInput";
 
-const Content = styled.div`
+const Container = styled.div`
   width: 100%;
   height: 100%;
   margin: 2px 0;
@@ -20,8 +21,8 @@ const ViewBox = styled.div<{ $cmp: boolean }>`
   border-radius: 5px;
   transition: 0.1s box-shadow ease-in-out;
   cursor: pointer;
-  &:hover,
-  &:focus {
+
+  &:hover {
     background-color: ${(props) => props.theme.elementColor.boxBg};
   }
   // completed effect
@@ -58,10 +59,11 @@ const IsCheck = styled.div<{ $cmp?: boolean }>`
     }
   }
 `;
-const Title = styled.div<{ $cmp?: boolean }>`
+const Content = styled.div<{ $cmp?: boolean }>`
   display: flex;
   align-items: center;
   h1 {
+    margin-left: 10px;
     font-size: 15px;
   }
 `;
@@ -77,42 +79,34 @@ const IsFold = styled.div`
 `;
 
 const AddBox = styled.div``;
+
 interface ITodoProps {
   todoData: ITodoState;
 }
-interface IUiState {
-  isFold: boolean;
-}
 
 export default function Todo({
-  todoData: { id, text, comment, completed },
+  todoData: { id, text, comment, completed, isHide },
 }: ITodoProps) {
   const dispatch = useAppDispatch();
-  const [uiState, setUiState] = useState<IUiState>({
-    isFold: true,
-  });
 
   const onClickFold = (e: React.FormEvent<HTMLElement>) => {
     e.currentTarget.focus();
-    setUiState((prev) => {
-      return { ...prev, isFold: !prev.isFold };
-    });
+    dispatch(hideTodo(id));
   };
-  const onClickCmp = (e: React.FormEvent<HTMLElement>, id: string) => {
+  const onClickCmp = (e: React.FormEvent<HTMLElement>) => {
     e.stopPropagation();
     dispatch(cmpTodo(id));
   };
-
   return (
-    <Content>
+    <Container>
       <ViewBox
         $cmp={completed}
         onClick={(e: React.FormEvent<HTMLElement>) => onClickFold(e)}
       >
         <IsFold>
-          {JSON.stringify(comment) !== "[]" && ( // comment가 존재할 경우
+          {!checkEmptyArr(comment) && ( // comment가 존재할 경우
             <div>
-              {uiState.isFold ? (
+              {isHide ? (
                 <i className="fa-solid fa-angle-right" />
               ) : (
                 <i className="fa-solid fa-angle-down" />
@@ -120,17 +114,20 @@ export default function Todo({
             </div>
           )}
         </IsFold>
-        <Title>
+        <Content>
+          {checkEmptyArr(comment) ? (
+            <i className="fa-solid fa-minus" />
+          ) : (
+            <i className="fa-solid fa-bars-staggered" />
+          )}
           <h1>{text}</h1>
-        </Title>
-        <IsCheck
-          onClick={(e: React.FormEvent<HTMLElement>) => onClickCmp(e, id)}
-        >
-          <i className="fa-solid fa-check" />
+        </Content>
+        <IsCheck onClick={(e: React.FormEvent<HTMLElement>) => onClickCmp(e)}>
+          {checkEmptyArr(comment) && <i className="fa-solid fa-check" />}
         </IsCheck>
       </ViewBox>
       <AddBox>{/* <TodoTypeInput />  */}</AddBox>
-      {!uiState.isFold && <Todos recursiveData={comment} />}
-    </Content>
+      {!isHide && <Todos recursiveData={comment} />}
+    </Container>
   );
 }

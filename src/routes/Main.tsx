@@ -1,15 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import TodoInput from "../components/TodoInput";
 import TodoPage from "../components/TodoPage";
-import { useAppSelector } from "../redux/hooks";
-import {
-  ITodoState,
-  selFilteredTodos,
-  selTodoPercent,
-} from "../redux/todo/todoSlice";
+import { ITodoState, selFilteredTodos } from "../redux/todo/todoSlice";
 import { daylist } from "../type";
 
 const Header = styled.header`
@@ -84,38 +79,24 @@ const Bar = styled.div<{ $percent: number }>`
 `;
 export default function Main() {
   const { filterId } = useParams();
-  const todos = useAppSelector((state) => state.todos);
-  const todoPercent = useAppSelector(selTodoPercent);
-  const filteredTodos = useSelector((state: ITodoState[]) =>
+  const filteredArrPercent = useSelector((state: ITodoState[]) =>
     selFilteredTodos(state, filterId?.toUpperCase())
-  );
-  const [today, setToday] = useState(new Date());
+  )[1];
+
   return (
     <>
       <Header>
         <Wrap>
           <DateBox>
             <div>
-              <span>{daylist[today.getDay()]}</span>
+              <span>{daylist[new Date().getDay()]}</span>
               <span>요일</span>
             </div>
-            <div>{<span>{today.toLocaleDateString()}</span>}</div>
+            <div>{<span>{new Date().toLocaleDateString()}</span>}</div>
           </DateBox>
-          <Title>
-            {todos.length
-              ? filterId === "all"
-                ? todoPercent + "%"
-                : Number.isNaN(filteredTodos[1])
-                ? "현재 탭의 일이 존재하지 않습니다"
-                : filteredTodos[1] + "%"
-              : "할 일을 추가해주세요"}
-          </Title>
+          <Title>{filteredArrPercent + "%"}</Title>
           <BgBar>
-            <Bar
-              $percent={
-                filterId === "all" ? todoPercent : (filteredTodos[1] as number)
-              }
-            />
+            <Bar $percent={filteredArrPercent} />
           </BgBar>
         </Wrap>
         <TodoInput />

@@ -10,6 +10,7 @@ export const todoAdapter = {
       completed: false,
       comment: [],
       option: "NONE",
+      isHide: true,
     };
   },
 };
@@ -60,7 +61,7 @@ export const unpack = {
     for (const todo of state) {
       for (const [key, value] of Object.entries(todo) as any) {
         if (key === "id" && value === id) {
-          if (JSON.stringify(beforeArr) === "[]") {
+          if (checkEmptyArr(beforeArr)) {
             beforeArr = state;
           }
           const findIdx = beforeArr.findIndex((el) => el.id === id);
@@ -94,7 +95,7 @@ export const unpack = {
         if (key === "id" && value === payload.id) {
           // todo.text = payload.text;
           // todo.option = payload.option;
-          if (JSON.stringify(beforeArr) === "[]") {
+          if (checkEmptyArr(beforeArr)) {
             beforeArr = state;
           }
           const findIdx = beforeArr.findIndex((el) => el.id === value);
@@ -144,6 +145,24 @@ export const unpack = {
       }
     }
   },
+  hide: (state: ITodoState[], id: string) => {
+    for (const todo of state) {
+      for (const [key, value] of Object.entries(todo) as any) {
+        if (key === "id" && value === id) {
+          todo.isHide = !todo.isHide;
+          return true;
+        } else if (
+          key === "comment" &&
+          Array.isArray(value) &&
+          value.length > 0
+        ) {
+          if (unpack.hide(value, id)) {
+            return true;
+          }
+        }
+      }
+    }
+  },
   record(state: ITodoState[]) {
     for (const todo of state) {
       for (const [key, value] of Object.entries(todo)) {
@@ -156,6 +175,19 @@ export const unpack = {
           this.cmpArr.push(todo);
         } else if (key === "comment" && value.length > 0) {
           if (unpack.record(value)) {
+            return true;
+          }
+        }
+      }
+    }
+  },
+  record2(state: ITodoState[]) {
+    for (const todo of state) {
+      for (const [key, value] of Object.entries(todo)) {
+        if (key === "comment" && checkEmptyArr(value)) {
+          this.allArr.push(todo);
+        } else if (key === "comment" && value.length > 0) {
+          if (unpack.record2(value)) {
             return true;
           }
         }
@@ -277,4 +309,8 @@ export const resetPeriodLS = (dispatch: Function, resetFunc: Function) => {
       }
     }
   }
+};
+
+export const checkEmptyArr = (arr: any[]) => {
+  return JSON.stringify(arr) === "[]";
 };
