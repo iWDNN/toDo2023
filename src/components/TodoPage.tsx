@@ -5,7 +5,6 @@ import uuid from "react-uuid";
 import styled from "styled-components";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { ITodoState, selFilteredTodos } from "../redux/todo/todoSlice";
-import { setUi } from "../redux/uiState/uiStateSlice";
 import { filterlist } from "../type";
 import Todos from "./Todos";
 const Container = styled.div`

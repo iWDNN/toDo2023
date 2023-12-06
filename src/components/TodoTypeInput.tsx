@@ -1,121 +1,111 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import styled from "styled-components";
-import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { addTodo, fixTodo } from "../redux/todo/todoSlice";
-import { setCurTodo, setUi } from "../redux/uiState/uiStateSlice";
-import { DAILY, MONTHLY, NONE, TodoOptionType, WEEKEND, YEARLY } from "../type";
-import { todoAdapter } from "../utils";
+import { useAppDispatch } from "../redux/hooks";
+import { addTodo, fixTodo, ITodoState } from "../redux/todo/todoSlice";
+import { TodoOptionType } from "../type";
+import { IToggleState } from "./Todo";
 
-const Ct = styled.div<{ type: "FIX" | "ADD" }>`
-  width: 100%;
-  display: flex;
-  justify-content: ${(props) =>
-    props.type === "ADD" ? "center" : "flex-start"};
-  align-items: center;
-
+const Container = styled.div`
   form {
-    display: grid;
-    grid-template-columns: 15% 85%;
-    align-items: center;
-    width: 95%;
     select {
-      padding: 7px;
-      border: none;
-      border-top-left-radius: 7px;
-      border-bottom-left-radius: 7px;
-      outline: none;
-      /* box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.06); */
-      option {
-      }
-    }
-    input {
-      margin-left: 1px;
-      width: 100%;
-      padding: 7px;
-      border: none;
-      border-top-right-radius: 7px;
-      border-bottom-right-radius: 7px;
-      /* box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.06); */
-      outline: none;
-      &:focus {
-        border: 1px solid #2d2d2d;
-      }
     }
   }
 `;
+
 interface IProps {
   type: "ADD" | "FIX";
+  todoState: ITodoState;
+  setTgFunction: React.Dispatch<React.SetStateAction<IToggleState>>;
 }
-interface IFormState {
-  formText: string;
-  formOption: TodoOptionType;
-}
-export default function TodoTypeInput({ type }: IProps) {
-  const dispatch = useAppDispatch();
-  const { id, text, option } = useAppSelector(
-    (state) => state.uiState.currentTodo
-  );
 
-  const { register, handleSubmit, setValue, setFocus } = useForm<IFormState>({
+interface IFormState {
+  formOption: TodoOptionType;
+  formInput: string;
+}
+
+export default function TodoTypeInput({
+  type,
+  todoState,
+  setTgFunction,
+}: IProps) {
+  const dispatch = useAppDispatch();
+
+  const { register, setFocus, handleSubmit } = useForm<IFormState>({
     defaultValues: {
-      formText: type === "FIX" ? text : "",
-      formOption: type === "FIX" ? option : "NONE",
+      formOption: type === "FIX" ? todoState.option : "NONE",
+      formInput: type === "FIX" ? todoState.text : "",
     },
   });
-  const onValid = ({ formText, formOption }: IFormState) => {
-    if (text) {
-      switch (type) {
-        case "ADD":
-          dispatch(
-            addTodo({ parentId: id, text: formText, option: formOption })
-          );
-          break;
-        case "FIX":
-          dispatch(fixTodo({ id, text: formText, option: formOption }));
-          break;
-        default:
-          alert("Form.tsx component error");
-      }
+
+  const [blurTg, setBlurTg] = useState(false);
+
+  const eventPregStop = (e: React.FormEvent<HTMLElement>) => {
+    e.stopPropagation();
+  };
+  const onBlurEvent = (e: React.FormEvent<HTMLFormElement>) => {
+    if (!blurTg) {
+      setTgFunction(() => {
+        return {
+          add: false,
+          fix: false,
+        };
+      });
     }
-    dispatch(setUi({ type, id }));
-    dispatch(setCurTodo(todoAdapter.getInitialState()));
-    setValue("formText", "");
+  };
+
+  const onValid = ({ formInput, formOption }: IFormState) => {
+    switch (type) {
+      case "ADD":
+        dispatch(
+          addTodo({
+            parentId: todoState.id,
+            text: formInput,
+            option: formOption,
+          })
+        );
+        break;
+      case "FIX":
+        dispatch(
+          fixTodo({
+            id: todoState.id,
+            text: formInput,
+            option: formOption,
+          })
+        );
+        break;
+      default:
+        alert("TodoTypeInput.tsx error submit");
+    }
   };
   useEffect(() => {
-    setFocus("formText");
-  }, [type]);
+    setFocus("formInput");
+  }, []);
   return (
-    <Ct type={type}>
-      <form
-        onSubmit={handleSubmit(onValid)}
-        onClick={(e: React.FormEvent<HTMLFormElement>) => {
-          e.stopPropagation();
+    <Container>
+      <form //form 내부에서 onBlur가 발생하지 않게
+        onMouseOver={() => {
+          setBlurTg(true);
         }}
+        onMouseOut={() => {
+          setBlurTg(false);
+        }}
+        onBlur={(e: React.FormEvent<HTMLFormElement>) => onBlurEvent(e)}
+        onSubmit={handleSubmit(onValid)}
       >
         <select
           {...register("formOption")}
-          onChange={() => {
-            setFocus("formText"); // enter submit
-          }}
+          onChange={() => setFocus("formInput")}
+          onClick={eventPregStop}
         >
-          <option value={NONE}>미정</option>
-          <option value={DAILY}>일간</option>
-          <option value={WEEKEND}>주간</option>
-          <option value={MONTHLY}>월간</option>
-          <option value={YEARLY}>연간</option>
+          <option value="NONE">NONE</option>
+          <option value="DAILY">DAILY</option>
+          <option value="WEEKEND">WEEKEND</option>
+          <option value="MONTHLY">MONTHLY</option>
+          <option value="YEARLY">YEARLY</option>
         </select>
-        <input
-          {...register("formText", {
-            required: true,
-          })}
-          onBlur={() => {
-            // dispatch(setUi({ type: "RESET" }));
-          }}
-          placeholder={type !== "FIX" ? "할 일 추가" : "할 일 수정"}
-          autoComplete="off"
-        />
+        <input {...register("formInput")} onClick={eventPregStop} />
       </form>
-    </Ct>
+    </Container>
   );
 }

@@ -10,7 +10,7 @@ export const todoAdapter = {
       completed: false,
       comment: [],
       option: "NONE",
-      isHide: true,
+      isHide: false,
     };
   },
 };
@@ -226,12 +226,6 @@ export const unpack = {
   },
 };
 
-export const resetDatePeriod = (type: string) => {
-  switch (type) {
-    case "DAILY":
-  }
-};
-
 export const setLS = (name: string, content: any) => {
   localStorage.setItem(name, JSON.stringify(content));
 };
@@ -313,4 +307,25 @@ export const resetPeriodLS = (dispatch: Function, resetFunc: Function) => {
 
 export const checkEmptyArr = (arr: any[]) => {
   return JSON.stringify(arr) === "[]";
+};
+
+export const optionColor = (option: TodoOptionType): string => {
+  let result = "";
+  switch (option) {
+    case "DAILY":
+      result = "#C4E538";
+      break;
+    case "WEEKEND":
+      result = "#FFC312";
+      break;
+    case "MONTHLY":
+      result = "#12CBC4";
+      break;
+    case "YEARLY":
+      result = "#FDA7DF";
+      break;
+    default:
+      result = "grey";
+  }
+  return result;
 };

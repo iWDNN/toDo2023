@@ -1,8 +1,13 @@
-import React, { useEffect } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { useAppDispatch } from "../redux/hooks";
-import { cmpTodo, hideTodo, ITodoState } from "../redux/todo/todoSlice";
-import { checkEmptyArr, todoAdapter } from "../utils";
+import {
+  cmpTodo,
+  delTodo,
+  hideTodo,
+  ITodoState,
+} from "../redux/todo/todoSlice";
+import { checkEmptyArr, optionColor } from "../utils";
 import Todos from "./Todos";
 import TodoTypeInput from "./TodoTypeInput";
 
@@ -11,7 +16,10 @@ const Container = styled.div`
   height: 100%;
   margin: 2px 0;
 `;
-
+const ContentPlus = styled.div`
+  transition: 0.1s all ease-in-out;
+  opacity: 0;
+`;
 const ViewBox = styled.div<{ $cmp: boolean }>`
   width: 100%;
   height: 40px;
@@ -21,8 +29,10 @@ const ViewBox = styled.div<{ $cmp: boolean }>`
   border-radius: 5px;
   transition: 0.1s box-shadow ease-in-out;
   cursor: pointer;
-
   &:hover {
+    ${ContentPlus} {
+      opacity: 1;
+    }
     background-color: ${(props) => props.theme.elementColor.boxBg};
   }
   // completed effect
@@ -42,6 +52,38 @@ const ViewBox = styled.div<{ $cmp: boolean }>`
   }
 `;
 
+const IsFold = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  div {
+    i {
+      padding: 4px;
+    }
+  }
+`;
+
+const Content = styled.div<{ $cmp?: boolean }>`
+  display: grid;
+  grid-template-columns: 95% 5%;
+  align-items: center;
+  div:nth-child(1) {
+    // content box 1
+    display: flex;
+    align-items: center;
+    h1 {
+      margin-left: 10px;
+      font-size: 15px;
+    }
+  }
+`;
+const ContentEditGrp = styled.div`
+  // in content box 1
+  margin-right: 10px;
+  i {
+    margin: 0 4px;
+  }
+`;
 const IsCheck = styled.div<{ $cmp?: boolean }>`
   display: flex;
   justify-content: center;
@@ -59,23 +101,12 @@ const IsCheck = styled.div<{ $cmp?: boolean }>`
     }
   }
 `;
-const Content = styled.div<{ $cmp?: boolean }>`
-  display: flex;
-  align-items: center;
-  h1 {
-    margin-left: 10px;
-    font-size: 15px;
-  }
-`;
-const IsFold = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  div {
-    i {
-      padding: 4px;
-    }
-  }
+const ContentOption = styled.div<{ $color: string }>`
+  place-self: end;
+  color: ${(props) => props.$color};
+  font-size: 14px;
+  font-weight: 700;
+  margin-left: 10px;
 `;
 
 const AddBox = styled.div``;
@@ -84,29 +115,69 @@ interface ITodoProps {
   todoData: ITodoState;
 }
 
-export default function Todo({
-  todoData: { id, text, comment, completed, isHide },
-}: ITodoProps) {
+export interface IToggleState {
+  add: boolean;
+  fix: boolean;
+}
+export default function Todo({ todoData }: ITodoProps) {
   const dispatch = useAppDispatch();
 
+  const [toggle, setToggle] = useState<IToggleState>({
+    add: false,
+    fix: false,
+  });
+
   const onClickFold = (e: React.FormEvent<HTMLElement>) => {
-    e.currentTarget.focus();
-    dispatch(hideTodo(id));
+    if (checkEmptyArr(todoData.comment)) {
+      e.preventDefault();
+    } else dispatch(hideTodo(todoData.id));
   };
   const onClickCmp = (e: React.FormEvent<HTMLElement>) => {
     e.stopPropagation();
-    dispatch(cmpTodo(id));
+    dispatch(cmpTodo(todoData.id));
+  };
+  const onClickAdd = (e: React.FormEvent<HTMLElement>) => {
+    e.preventDefault(); // addct 불필요한 재생성 방지
+    if (toggle.add) {
+      // add버튼 true 경우 addCt다시 제거
+      setToggle((prev) => {
+        return {
+          ...prev,
+          add: false,
+        };
+      });
+    } else
+      setTimeout(() => {
+        setToggle((prev) => {
+          return {
+            ...prev,
+            add: true,
+          };
+        });
+      }, 50);
+  };
+  const onClickFix = (e: React.FormEvent<HTMLElement>) => {
+    e.stopPropagation();
+    setToggle((prev) => {
+      return {
+        ...prev,
+        fix: !prev.fix,
+      };
+    });
+  };
+  const onClickDel = (e: React.FormEvent<HTMLElement>) => {
+    e.stopPropagation();
+    if (window.confirm("test")) {
+      dispatch(delTodo(todoData.id));
+    }
   };
   return (
     <Container>
-      <ViewBox
-        $cmp={completed}
-        onClick={(e: React.FormEvent<HTMLElement>) => onClickFold(e)}
-      >
+      <ViewBox $cmp={todoData.completed} onClick={onClickFold}>
         <IsFold>
-          {!checkEmptyArr(comment) && ( // comment가 존재할 경우
+          {!checkEmptyArr(todoData.comment) && ( // comment가 존재할 경우
             <div>
-              {isHide ? (
+              {todoData.isHide ? (
                 <i className="fa-solid fa-angle-right" />
               ) : (
                 <i className="fa-solid fa-angle-down" />
@@ -115,19 +186,63 @@ export default function Todo({
           )}
         </IsFold>
         <Content>
-          {checkEmptyArr(comment) ? (
-            <i className="fa-solid fa-minus" />
-          ) : (
-            <i className="fa-solid fa-bars-staggered" />
-          )}
-          <h1>{text}</h1>
+          <div>
+            <ContentEditGrp>
+              {true && (
+                <>
+                  <i className="fa-solid fa-pen" onClick={onClickFix} />
+                  <i className="fa-solid fa-trash" onClick={onClickDel} />
+                </>
+              )}
+            </ContentEditGrp>
+            {checkEmptyArr(todoData.comment) ? (
+              <i className="fa-solid fa-minus" />
+            ) : (
+              <i className="fa-solid fa-bars-staggered" />
+            )}
+            <h1>
+              {!toggle.fix ? (
+                todoData.text
+              ) : (
+                <TodoTypeInput
+                  type="FIX"
+                  todoState={todoData}
+                  setTgFunction={setToggle}
+                />
+              )}
+            </h1>
+            {todoData.option !== "NONE" && (
+              <ContentOption $color={optionColor(todoData.option)}>
+                {todoData.option}
+              </ContentOption>
+            )}
+          </div>
+          <ContentPlus
+            onClick={(e: React.FormEvent<HTMLElement>) => {
+              e.stopPropagation();
+            }}
+          >
+            <div onMouseDown={onClickAdd}>
+              <i className="fa-solid fa-plus" />
+            </div>
+          </ContentPlus>
         </Content>
-        <IsCheck onClick={(e: React.FormEvent<HTMLElement>) => onClickCmp(e)}>
-          {checkEmptyArr(comment) && <i className="fa-solid fa-check" />}
+        <IsCheck onClick={onClickCmp}>
+          {checkEmptyArr(todoData.comment) && (
+            <i className="fa-solid fa-check" />
+          )}
         </IsCheck>
       </ViewBox>
-      <AddBox>{/* <TodoTypeInput />  */}</AddBox>
-      {!isHide && <Todos recursiveData={comment} />}
+      <AddBox>
+        {toggle.add && (
+          <TodoTypeInput
+            type="ADD"
+            todoState={todoData}
+            setTgFunction={setToggle}
+          />
+        )}
+      </AddBox>
+      {!todoData.isHide && <Todos recursiveData={todoData.comment} />}
     </Container>
   );
 }
