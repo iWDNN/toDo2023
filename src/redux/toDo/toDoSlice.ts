@@ -64,7 +64,7 @@ const selTodos = (state: RootState) => state.todos;
 export const selTodoUnpackList = createSelector(selTodos, (todos) => {
   // complete 기능이 사용가능 한 가장 하위 투두의 배열
   unpack.unpackReset();
-  unpack.record2(todos);
+  unpack.record(todos);
   return unpack.allArr;
 });
 

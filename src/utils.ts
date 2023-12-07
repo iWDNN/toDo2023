@@ -16,8 +16,6 @@ export const todoAdapter = {
 };
 export const unpack = {
   allArr: [] as ITodoState[],
-  cmpArr: [] as ITodoState[],
-  notCmpArr: [] as ITodoState[],
   add: (
     state: ITodoState[],
     payload: {
@@ -166,28 +164,10 @@ export const unpack = {
   record(state: ITodoState[]) {
     for (const todo of state) {
       for (const [key, value] of Object.entries(todo)) {
-        if (key === "id" && value) {
-          this.allArr.push(todo);
-        }
-        if (key === "completed" && value === false) {
-          this.notCmpArr.push(todo);
-        } else if (key === "completed" && value === true) {
-          this.cmpArr.push(todo);
-        } else if (key === "comment" && value.length > 0) {
-          if (unpack.record(value)) {
-            return true;
-          }
-        }
-      }
-    }
-  },
-  record2(state: ITodoState[]) {
-    for (const todo of state) {
-      for (const [key, value] of Object.entries(todo)) {
         if (key === "comment" && checkEmptyArr(value)) {
           this.allArr.push(todo);
         } else if (key === "comment" && value.length > 0) {
-          if (unpack.record2(value)) {
+          if (unpack.record(value)) {
             return true;
           }
         }
@@ -221,8 +201,6 @@ export const unpack = {
 
   unpackReset() {
     this.allArr = [];
-    this.cmpArr = [];
-    this.notCmpArr = [];
   },
 };
 

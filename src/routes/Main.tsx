@@ -82,7 +82,6 @@ export default function Main() {
   const filteredArrPercent = useSelector((state: ITodoState[]) =>
     selFilteredTodos(state, filterId?.toUpperCase())
   )[1];
-
   return (
     <>
       <Header>

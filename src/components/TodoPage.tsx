@@ -5,9 +5,11 @@ import uuid from "react-uuid";
 import styled from "styled-components";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { ITodoState, selFilteredTodos } from "../redux/todo/todoSlice";
+import { setToggleEdit } from "../redux/uiState/uiStateSlice";
 import { filterlist } from "../type";
 import Todos from "./Todos";
 const Container = styled.div`
+  position: relative;
   width: 100%;
 `;
 
@@ -40,13 +42,11 @@ const Tab = styled.div<{ $isActive: boolean }>`
     border-right: none;
   }
 `;
-const SetList = styled.div`
+const SetGrp = styled.div`
   position: absolute;
-  top: -10px;
-  right: 10px;
+  top: 20px;
+  left: -70px;
   display: flex;
-  justify-content: flex-end;
-  padding: 10px 10px 0 0;
 `;
 const SetIcon = styled.div`
   font-size: 1.1em;
@@ -63,11 +63,16 @@ const ToDoList = styled.div`
 export default function TodoPage() {
   const { filterId } = useParams();
 
+  const dispatch = useAppDispatch();
+
   const toDoRedux = useAppSelector((state) => state.todos);
   const unpackFilteredArr = useSelector((state: ITodoState[]) =>
     selFilteredTodos(state, filterId?.toUpperCase())
   )[0];
 
+  const onClickEdit = () => {
+    dispatch(setToggleEdit());
+  };
   return (
     <>
       <Container>
@@ -83,25 +88,15 @@ export default function TodoPage() {
             </Tab>
           ))}
         </Tabs>
+        <SetGrp>
+          <SetIcon onClick={onClickEdit}>
+            <i className="fa-solid fa-gear" />
+          </SetIcon>
+          <SetIcon>
+            <i className="fa-solid fa-trash" />
+          </SetIcon>
+        </SetGrp>
         <ToDoList>
-          {/* <SetList>
-            <SetIcon
-              onClick={() => {
-                dispatch(setUi({ type: "SET" }));
-              }}
-            >
-              <i className="fa-solid fa-gear" />
-            </SetIcon>
-            <SetIcon
-              onClick={() => {
-                if (window.confirm("모두 제거하시겠습니까?")) {
-                  dispatch(resetToDos());
-                }
-              }}
-            >
-              <i className="fa-solid fa-trash" />
-            </SetIcon>
-          </SetList> */}
           <Todos
             recursiveData={filterId === "all" ? toDoRedux : unpackFilteredArr}
             // repeat={filterId === "all"}

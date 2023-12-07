@@ -7,8 +7,26 @@ import { TodoOptionType } from "../type";
 import { IToggleState } from "./Todo";
 
 const Container = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 5px;
   form {
-    select {
+    width: 95%;
+    display: grid;
+    grid-template-columns: 15% 85%;
+    align-items: center;
+    color: ${(props) => props.theme.textColor};
+    select,
+    input {
+      border: none;
+      outline: none;
+      padding: 7px;
+    }
+    select: {
+    }
+    input {
     }
   }
 `;

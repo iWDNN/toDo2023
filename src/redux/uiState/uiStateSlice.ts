@@ -2,10 +2,12 @@ import { createSlice } from "@reduxjs/toolkit";
 import { SetUiOptionType } from "../../type";
 
 export interface IuiState {
+  editTg: boolean;
   depth: number;
 }
 
 const initialState: IuiState = {
+  editTg: false,
   depth: 0,
 };
 export interface ISetUiPayload {
@@ -16,9 +18,13 @@ export interface ISetUiPayload {
 export const uiStateSlice = createSlice({
   name: "uiState",
   initialState,
-  reducers: {},
+  reducers: {
+    setToggleEdit: (state) => {
+      state.editTg = !state.editTg;
+    },
+  },
 });
 
-export const {} = uiStateSlice.actions;
+export const { setToggleEdit } = uiStateSlice.actions;
 
 export default uiStateSlice.reducer;
