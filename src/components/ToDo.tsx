@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import {
@@ -24,14 +25,21 @@ const Title = styled.div`
   display: flex;
   flex-grow: 1;
 `;
-const ViewBox = styled.div<{ $cmp: boolean; $editTg: boolean }>`
+const ViewBox = styled.div<{
+  $cmp: boolean;
+  $editTg: boolean;
+  $isComment: boolean;
+}>`
   width: 100%;
   height: 40px;
   display: grid;
-  grid-template-columns: 10% 80% 10%;
+  grid-template-columns: 7% 83% 10%;
   align-items: center;
   border-radius: 5px;
   transition: 0.1s box-shadow ease-in-out;
+  & > div:nth-child(2) {
+    border-left: ${(props) => !props.$isComment && "2px solid #454545"};
+  }
   cursor: pointer;
   &:hover {
     ${Plus} {
@@ -83,9 +91,12 @@ const IsFold = styled.div`
 `;
 
 const ContentCt = styled.div<{ $cmp?: boolean }>`
+  height: 100%;
   display: grid;
   grid-template-columns: 95% 5%;
   align-items: center;
+  padding-left: 10px;
+  border-radius: 2px;
   div:nth-child(1) {
     // content box 1
     display: flex;
@@ -102,6 +113,9 @@ const ContentEditGrp = styled.div`
   align-items: center;
   i {
     margin: 0 4px;
+  }
+  i:nth-child(2) {
+    font-size: 22px;
   }
 `;
 const IsCheck = styled.div<{ $cmp?: boolean }>`
@@ -139,7 +153,10 @@ export interface IToggleState {
   add: boolean;
   fix: boolean;
 }
+
 export default function Todo({ todoData }: ITodoProps) {
+  const { filterId } = useParams();
+
   const dispatch = useAppDispatch();
 
   const editToggle = useAppSelector((state) => state.uiState.editTg);
@@ -152,7 +169,7 @@ export default function Todo({ todoData }: ITodoProps) {
   const onClickFold = (e: React.FormEvent<HTMLElement>) => {
     if (checkEmptyArr(todoData.comment)) {
       e.preventDefault();
-    } else dispatch(hideTodo(todoData.id));
+    } else dispatch(hideTodo({ id: todoData.id }));
   };
   const onClickCmp = (e: React.FormEvent<HTMLElement>) => {
     e.stopPropagation();
@@ -208,8 +225,9 @@ export default function Todo({ todoData }: ITodoProps) {
     <Container>
       <ViewBox
         $cmp={todoData.completed}
-        onClick={onClickFold}
         $editTg={editToggle}
+        $isComment={!checkEmptyArr(todoData.comment)}
+        onClick={onClickFold}
       >
         <IsFold>
           {!checkEmptyArr(todoData.comment) && ( // comment가 존재할 경우
@@ -260,20 +278,22 @@ export default function Todo({ todoData }: ITodoProps) {
                 >
                   <i className="fa-solid fa-pen" onMouseDown={onClickFix} />
                 </div>
-                <i className="fa-solid fa-trash" onClick={onClickDel} />
+                <i className="fa-solid fa-xmark" onClick={onClickDel} />
               </>
             ) : (
-              <Plus
-                onClick={(e: React.FormEvent<HTMLElement>) => {
-                  e.stopPropagation();
-                }}
-              >
-                {!todoData.completed && (
-                  <div onMouseDown={onClickAdd}>
-                    <i className="fa-solid fa-plus" />
-                  </div>
-                )}
-              </Plus>
+              filterId === "all" && (
+                <Plus
+                  onClick={(e: React.FormEvent<HTMLElement>) => {
+                    e.stopPropagation();
+                  }}
+                >
+                  {!todoData.completed && (
+                    <div onMouseDown={onClickAdd}>
+                      <i className="fa-solid fa-plus" />
+                    </div>
+                  )}
+                </Plus>
+              )
             )}
           </ContentEditGrp>
         </ContentCt>

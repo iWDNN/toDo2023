@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import TodoInput from "../components/TodoInput";
 import TodoPage from "../components/TodoPage";
+import { useAppSelector } from "../redux/hooks";
 import { ITodoState, selFilteredTodos } from "../redux/todo/todoSlice";
 import { daylist } from "../type";
 
@@ -79,9 +80,24 @@ const Bar = styled.div<{ $percent: number }>`
 `;
 export default function Main() {
   const { filterId } = useParams();
-  const filteredArrPercent = useSelector((state: ITodoState[]) =>
+  const reduxTodos = useAppSelector((state) => state.todos);
+  const filteredPercent = useSelector((state: ITodoState[]) =>
     selFilteredTodos(state, filterId?.toUpperCase())
   )[1];
+
+  const checkTitle = () => {
+    let result = "";
+
+    if (reduxTodos.length > 0) {
+      result = filteredPercent + "%";
+      if (Number.isNaN(filteredPercent)) {
+        result = "현재 탭의 할 일이 존재하지 않습니다";
+      }
+    } else {
+      result = "할 일을 추가해주세요";
+    }
+    return result;
+  };
   return (
     <>
       <Header>
@@ -93,9 +109,9 @@ export default function Main() {
             </div>
             <div>{<span>{new Date().toLocaleDateString()}</span>}</div>
           </DateBox>
-          <Title>{filteredArrPercent + "%"}</Title>
+          <Title>{checkTitle()}</Title>
           <BgBar>
-            <Bar $percent={filteredArrPercent} />
+            <Bar $percent={filteredPercent} />
           </BgBar>
         </Wrap>
         <TodoInput />

@@ -14,8 +14,11 @@ export const todoAdapter = {
     };
   },
 };
+
+// redux data control
 export const unpack = {
-  allArr: [] as ITodoState[],
+  listArr: [] as ITodoState[],
+  itemArr: [] as ITodoState[],
   add: (
     state: ITodoState[],
     payload: {
@@ -122,14 +125,6 @@ export const unpack = {
       for (const [key, value] of Object.entries(todo) as any) {
         if (key === "id" && value === id) {
           todo.completed = !todo.completed;
-          // if (JSON.stringify(beforeArr) === "[]") {
-          //   beforeArr = state;
-          // }
-          // const findIdx = beforeArr.findIndex((el) => el.id === id);
-          // beforeArr[findIdx] = {
-          //   ...beforeArr[findIdx],
-          //   completed: !beforeArr[findIdx].completed,
-          // };
           return true;
         } else if (
           key === "comment" &&
@@ -143,18 +138,29 @@ export const unpack = {
       }
     }
   },
-  hide: (state: ITodoState[], id: string) => {
+  hide: (
+    state: ITodoState[],
+    payload: { id?: string; open?: boolean; close?: boolean }
+  ) => {
     for (const todo of state) {
+      if (payload.open) {
+        todo.isHide = false;
+      }
+      if (payload.close) {
+        todo.isHide = true;
+      }
       for (const [key, value] of Object.entries(todo) as any) {
-        if (key === "id" && value === id) {
-          todo.isHide = !todo.isHide;
-          return true;
+        if (!(payload.open || payload.close)) {
+          if (key === "id" && value === payload.id) {
+            todo.isHide = !todo.isHide;
+            return true;
+          }
         } else if (
           key === "comment" &&
           Array.isArray(value) &&
           value.length > 0
         ) {
-          if (unpack.hide(value, id)) {
+          if (unpack.hide(value, payload)) {
             return true;
           }
         }
@@ -163,9 +169,10 @@ export const unpack = {
   },
   record(state: ITodoState[]) {
     for (const todo of state) {
+      this.listArr.push(todo);
       for (const [key, value] of Object.entries(todo)) {
         if (key === "comment" && checkEmptyArr(value)) {
-          this.allArr.push(todo);
+          this.itemArr.push(todo);
         } else if (key === "comment" && value.length > 0) {
           if (unpack.record(value)) {
             return true;
@@ -174,6 +181,7 @@ export const unpack = {
       }
     }
   },
+
   reset(
     state: ITodoState[],
     payload: {
@@ -198,11 +206,32 @@ export const unpack = {
       }
     }
   },
+  sort: (state: ITodoState[]) => {
+    for (const todo of state) {
+      state.sort((a, b) =>
+        checkEmptyArr(a.comment) === checkEmptyArr(b.comment)
+          ? 0
+          : checkEmptyArr(a.comment)
+          ? 1
+          : -1
+      );
+      for (const [key, value] of Object.entries(todo) as any) {
+        if (key === "comment" && !checkEmptyArr(value)) {
+          if (unpack.sort(value)) {
+            return true;
+          }
+        }
+      }
+    }
+  },
 
   unpackReset() {
-    this.allArr = [];
+    this.itemArr = [];
+    this.listArr = [];
   },
 };
+
+// localStrage
 
 export const setLS = (name: string, content: any) => {
   localStorage.setItem(name, JSON.stringify(content));
@@ -211,77 +240,7 @@ export const getLS = (name: string) => {
   return JSON.parse(localStorage.getItem(name) as any);
 };
 
-export const resetPeriodLS = (dispatch: Function, resetFunc: Function) => {
-  if (!getLS("resetPeriod")) {
-    setLS("resetPeriod", { daily: 0, weekend: false, monthly: 0, yearly: 0 });
-  } else {
-    const today = new Date();
-    if (!getLS("resetPeriod").daily) {
-      setLS("resetPeriod", {
-        ...getLS("resetPeriod"),
-        daily: today.getDate(),
-      });
-    } else {
-      if (getLS("resetPeriod") !== today.getDate()) {
-        dispatch(
-          resetFunc({ type: "completed", option: "DAILY", value: false })
-        );
-        setLS("resetPeriod", {
-          ...getLS("resetPeriod"),
-          daily: today.getDate(),
-        });
-      }
-    }
-    if (today.getDay() === 1 && getLS("resetPeriod").weekend === false) {
-      dispatch(
-        resetFunc({ type: "completed", option: "WEEKEND", value: false })
-      );
-      setLS("resetPeriod", {
-        ...getLS("resetPeriod"),
-        weekend: true,
-      });
-    } else if (today.getDay() !== 1 && getLS("resetPeriod").weekend === true) {
-      setLS("resetPeriod", {
-        ...getLS("resetPeriod"),
-        weekend: false,
-      });
-    }
-
-    if (!getLS("resetPeriod").monthly) {
-      setLS("resetPeriod", {
-        ...getLS("resetPeriod"),
-        monthly: today.getMonth(),
-      });
-    } else {
-      if (getLS("resetPeriod") !== today.getMonth()) {
-        dispatch(
-          resetFunc({ type: "completed", option: "MONTHLY", value: false })
-        );
-        setLS("resetPeriod", {
-          ...getLS("resetPeriod"),
-          monthly: today.getMonth(),
-        });
-      }
-    }
-
-    if (!getLS("resetPeriod").yearly) {
-      setLS("resetPeriod", {
-        ...getLS("resetPeriod"),
-        yearly: today.getFullYear(),
-      });
-    } else {
-      if (getLS("resetPeriod") !== today.getFullYear()) {
-        dispatch(
-          resetFunc({ type: "completed", option: "YEARLY", value: false })
-        );
-        setLS("resetPeriod", {
-          ...getLS("resetPeriod"),
-          yearly: today.getFullYear(),
-        });
-      }
-    }
-  }
-};
+// etc
 
 export const checkEmptyArr = (arr: any[]) => {
   return JSON.stringify(arr) === "[]";

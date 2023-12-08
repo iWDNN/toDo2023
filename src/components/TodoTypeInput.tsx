@@ -112,7 +112,9 @@ export default function TodoTypeInput({
         onSubmit={handleSubmit(onValid)}
       >
         <select
-          {...register("formOption")}
+          {...register("formOption", {
+            required: true,
+          })}
           onChange={() => setFocus("formInput")}
           onClick={eventPregStop}
         >

@@ -25,9 +25,11 @@ const todoSlice = createSlice({
       }>
     ) => {
       unpack.add(state, action.payload);
+      unpack.sort(state);
     },
     delTodo: (state, action: PayloadAction<string>) => {
       unpack.delete(state, action.payload);
+      unpack.sort(state);
     },
     fixTodo: (
       state,
@@ -38,22 +40,18 @@ const todoSlice = createSlice({
       }>
     ) => {
       unpack.fix(state, action.payload);
+      unpack.sort(state);
     },
     cmpTodo: (state, action: PayloadAction<string>) => {
       unpack.complete(state, action.payload);
+      unpack.sort(state);
     },
-    hideTodo: (state, action: PayloadAction<string>) => {
-      unpack.hide(state, action.payload);
-    },
-    resetTodo: (
+    hideTodo: (
       state,
-      action: PayloadAction<{
-        type: "completed";
-        option: TodoOptionType | "ALL";
-        value: boolean;
-      }>
+      action: PayloadAction<{ id?: string; open?: boolean; close?: boolean }>
     ) => {
-      unpack.reset(state, action.payload);
+      unpack.hide(state, action.payload);
+      unpack.sort(state);
     },
     resetToDos: () => [],
   },
@@ -65,37 +63,36 @@ export const selTodoUnpackList = createSelector(selTodos, (todos) => {
   // complete 기능이 사용가능 한 가장 하위 투두의 배열
   unpack.unpackReset();
   unpack.record(todos);
-  return unpack.allArr;
+  return [unpack.listArr, unpack.itemArr];
 });
 
 export const selFilteredTodos = createSelector(
   [selTodoUnpackList, (_state, filterId) => filterId],
-  (unpackList, filterId): [ITodoState[], number] => [
-    unpackList.filter((todo) =>
-      filterId === "ALL" ? unpackList : todo.option === filterId
-    ),
-    Math.floor(
-      (unpackList
-        .filter((todo) =>
-          filterId === "ALL" ? unpackList : todo.option === filterId
-        )
-        .filter((todo) => todo.completed).length /
-        unpackList.filter((todo) =>
-          filterId === "ALL" ? unpackList : todo.option === filterId
-        ).length) *
-        100
-    ),
-  ]
+  ([selListArr, selItemArr], filterId): [ITodoState[], number] => {
+    let listArr: ITodoState[] = selListArr.filter(
+      (todo) => (filterId === "ALL" ? selListArr : todo.option === filterId) // 폴더도 보이는 옵션으로 분류된 배열
+    );
+    unpack.unpackReset();
+    unpack.record(listArr); // 배열 depth를 제외한 할일들의 1차원 배열
+    const copyUnpackItemArr = unpack.itemArr.slice();
+    const itemArr =
+      filterId === "all"
+        ? Math.floor(
+            (selItemArr.filter((todo) => todo.completed).length /
+              selItemArr.length) *
+              100
+          )
+        : Math.floor(
+            (copyUnpackItemArr.filter((todo) => todo.completed).length /
+              copyUnpackItemArr.length) *
+              100
+          );
+
+    return [listArr, itemArr];
+  }
 );
 
-export const {
-  addTodo,
-  delTodo,
-  fixTodo,
-  cmpTodo,
-  hideTodo,
-  resetTodo,
-  resetToDos,
-} = todoSlice.actions;
+export const { addTodo, delTodo, fixTodo, cmpTodo, hideTodo, resetToDos } =
+  todoSlice.actions;
 
 export default todoSlice.reducer;

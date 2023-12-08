@@ -7,7 +7,7 @@ import Todo from "./Todo";
 const Container = styled.div`
   min-width: 480px;
   user-select: none;
-  margin-left: 10px;
+  margin-left: 20px;
 `;
 interface IToDoProps {
   recursiveData: ITodoState[];
