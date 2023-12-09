@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
+import Time from "../components/Time";
 import TodoInput from "../components/TodoInput";
 import TodoPage from "../components/TodoPage";
 import { useAppSelector } from "../redux/hooks";
@@ -21,9 +22,6 @@ const Header = styled.header`
         font-size: 1.5em;
       }
     }
-    & > div {
-      width: 100px;
-    }
   }
   & > *:nth-child(2) {
     // todoinput
@@ -40,23 +38,26 @@ const DateBox = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
-  margin: 1em 0;
+  margin-bottom: 10px;
   @media screen and (max-width: 1040px) {
     font-size: 2em;
   }
-  div:nth-child(1) {
-    font-weight: 700;
+  & > div {
+    font-weight: 600;
+  }
+  & > div:nth-child(1) {
+    // 요일
+    font-size: 20px;
     span:first-child {
-      font-size: 2em;
-    }
-    span:last-child {
-      font-size: 1.3em;
+      font-weight: 700;
+      font-size: 30px;
     }
   }
-  div:nth-child(2) {
-    font-weight: 600;
-    font-size: 0.9em;
+  & > div:nth-child(2) {
+    // 날짜
+    font-size: 16px;
   }
 `;
 const Title = styled.h1`
@@ -108,6 +109,7 @@ export default function Main() {
               <span>요일</span>
             </div>
             <div>{<span>{new Date().toLocaleDateString()}</span>}</div>
+            <Time />
           </DateBox>
           <Title>{checkTitle()}</Title>
           <BgBar>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
@@ -156,7 +156,6 @@ export interface IToggleState {
 
 export default function Todo({ todoData }: ITodoProps) {
   const { filterId } = useParams();
-
   const dispatch = useAppDispatch();
 
   const editToggle = useAppSelector((state) => state.uiState.editTg);
