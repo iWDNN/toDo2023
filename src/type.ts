@@ -1,4 +1,4 @@
-import { types } from "util";
+export const RESET_PERIOD = "reset period";
 
 export const ADD = "ADD";
 export const FIX = "FIX";

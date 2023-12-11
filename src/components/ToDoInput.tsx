@@ -6,6 +6,7 @@ import { addTodo } from "../redux/todo/todoSlice";
 import { DAILY, MONTHLY, NONE, TodoOptionType, WEEKEND, YEARLY } from "../type";
 
 const Container = styled.div`
+  margin-top: 10px;
   form {
     select {
       padding: 10px;

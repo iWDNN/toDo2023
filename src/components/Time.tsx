@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled, { keyframes } from "styled-components";
+import { RESET_PERIOD } from "../type";
+import { checkEmptyArr, dateInitialState, getLS, setLS } from "../utils";
 
 const blink = keyframes`
 to {
@@ -7,15 +9,14 @@ to {
   }
 `;
 const Container = styled.div`
-  width: 120px;
+  width: 130px;
   display: grid;
   grid-template-columns: 20% 80%;
   align-items: center;
-  /* border: 2.5px solid ${(props) => props.theme.textColor}; */
   border-radius: 3px;
-  background-color: ${(props) => props.theme.textColor};
-  color: ${(props) => props.theme.bgColor};
+  color: ${(props) => props.theme.textColor};
   overflow: hidden;
+  padding: 2px 4px;
   margin: 10px 0 5px 0;
   & > div:nth-child(1) {
     place-self: center;
@@ -34,7 +35,6 @@ const Container = styled.div`
     place-self: center;
     display: flex;
     align-items: center;
-    padding: 2px;
     font-size: 30px;
     font-family: "Audiowide", sans-serif;
     & > span {
@@ -48,6 +48,13 @@ export default function Time() {
   useEffect(() => {
     const testInterval = setInterval(() => {
       setTime(new Date().getTime());
+
+      if (checkEmptyArr(getLS(RESET_PERIOD))) {
+        setLS(RESET_PERIOD, dateInitialState);
+      } else {
+        // resetPeriod();
+      }
+
       return () => clearInterval(testInterval);
     }, 1000);
   }, []);

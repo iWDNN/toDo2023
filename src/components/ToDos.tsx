@@ -6,7 +6,6 @@ import Todo from "./Todo";
 
 const Container = styled.div`
   min-width: 480px;
-  user-select: none;
   margin-left: 20px;
 `;
 interface IToDoProps {

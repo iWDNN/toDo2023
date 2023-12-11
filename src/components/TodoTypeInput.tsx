@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import styled from "styled-components";
-import { useAppDispatch } from "../redux/hooks";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { addTodo, fixTodo, ITodoState } from "../redux/todo/todoSlice";
+import { setEditToggle } from "../redux/uiState/uiStateSlice";
 import { TodoOptionType } from "../type";
 import { IToggleState } from "./Todo";
 
@@ -48,6 +49,8 @@ export default function TodoTypeInput({
   setTgFunction,
 }: IProps) {
   const dispatch = useAppDispatch();
+  const editToogle = useAppSelector((state) => state.uiState.editTg);
+  const [blurTg, setBlurTg] = useState(false);
 
   const { register, setFocus, handleSubmit } = useForm<IFormState>({
     defaultValues: {
@@ -55,8 +58,6 @@ export default function TodoTypeInput({
       formInput: type === "FIX" ? todoState.text : "",
     },
   });
-
-  const [blurTg, setBlurTg] = useState(false);
 
   const eventPregStop = (e: React.FormEvent<HTMLElement>) => {
     e.stopPropagation();
@@ -69,6 +70,9 @@ export default function TodoTypeInput({
           fix: false,
         };
       });
+      if (editToogle === 1) {
+        dispatch(setEditToggle(0));
+      }
     }
   };
 
@@ -94,6 +98,9 @@ export default function TodoTypeInput({
         break;
       default:
         alert("TodoTypeInput.tsx error submit");
+    }
+    if (editToogle === 1) {
+      dispatch(setEditToggle(0));
     }
   };
   useEffect(() => {

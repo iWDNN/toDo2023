@@ -46,6 +46,7 @@ const todoSlice = createSlice({
       unpack.complete(state, action.payload);
       unpack.sort(state);
     },
+
     hideTodo: (
       state,
       action: PayloadAction<{ id?: string; open?: boolean; close?: boolean }>

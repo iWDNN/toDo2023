@@ -20,7 +20,7 @@ const rootReducer = combineReducers({
 const persistConfig = {
   key: "root", // localStorage key
   storage, // localStorage
-  whitelist: ["todos"], // target
+  whitelist: ["todos", "uiState"], // target
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

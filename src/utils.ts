@@ -1,6 +1,6 @@
 import uuid from "react-uuid";
 import { ITodoState } from "./redux/todo/todoSlice";
-import { TodoOptionType } from "./type";
+import { DAILY, RESET_PERIOD, TodoOptionType } from "./type";
 
 export const todoAdapter = {
   getInitialState: (): ITodoState => {
@@ -240,29 +240,110 @@ export const getLS = (name: string) => {
   return JSON.parse(localStorage.getItem(name) as any);
 };
 
+export const dateInitialState = {
+  daily: {
+    value: 0,
+    reset: false,
+  },
+  weekend: {
+    value: 0,
+    reset: false,
+  },
+  monthly: {
+    value: 0,
+    reset: false,
+  },
+  yearly: {
+    value: 0,
+    reset: false,
+  },
+};
+
+// export const resetPeriod = (dispatch: Function) => {
+//   const today = new Date();
+//   //daily
+//   if (date.daily.value !== today.getDate()) {
+//     if (!date.daily.reset) {
+//       resetDaily();
+//       date.daily.value = today.getDate();
+//       date.daily.reset = true;
+//     }
+//   } else if (date.daily.value === today.getDate()) {
+//     date.daily.reset = false;
+//   }
+//   //monthly
+//   if (date.monthly.value !== today.getMonth()) {
+//     if (!date.monthly.reset) {
+//       resetMonth();
+//       date.monthly.value = today.getMonth();
+//       date.monthly.reset = true;
+//     }
+//   } else if (date.monthly.value === today.getMonth()) {
+//     date.monthly.reset = false;
+//   }
+//   //yearly
+//   if (date.yearly.value !== today.getFullYear()) {
+//     if (!date.yearly.reset) {
+//       resetYearly();
+//       date.yearly.value = today.getFullYear();
+//       date.yearly.reset = true;
+//     }
+//   } else if (date.yearly.value === today.getFullYear()) {
+//     date.yearly.reset = false;
+//   }
+//   //weekend
+//   if (date.weekend.value !== today.getDay()) {
+//     date.daily.reset = false;
+//   } else if (date.weekend.value === today.getDay()) {
+//     if (!date.weekend.reset) {
+//       resetWeekend();
+//       date.weekend.reset = true;
+//     }
+//   }
+// };
+
 // etc
 
 export const checkEmptyArr = (arr: any[]) => {
   return JSON.stringify(arr) === "[]";
 };
 
-export const optionColor = (option: TodoOptionType): string => {
+export const optionColor = (option: TodoOptionType, mode: boolean): string => {
   let result = "";
-  switch (option) {
-    case "DAILY":
-      result = "#C4E538";
-      break;
-    case "WEEKEND":
-      result = "#FFC312";
-      break;
-    case "MONTHLY":
-      result = "#12CBC4";
-      break;
-    case "YEARLY":
-      result = "#FDA7DF";
-      break;
-    default:
-      result = "grey";
+  if (mode) {
+    switch (option) {
+      case "DAILY":
+        result = "#C4E538";
+        break;
+      case "WEEKEND":
+        result = "#FFC312";
+        break;
+      case "MONTHLY":
+        result = "#12CBC4";
+        break;
+      case "YEARLY":
+        result = "#FDA7DF";
+        break;
+      default:
+        result = "grey";
+    }
+  } else {
+    switch (option) {
+      case "DAILY":
+        result = "#1da014";
+        break;
+      case "WEEKEND":
+        result = "#deab11";
+        break;
+      case "MONTHLY":
+        result = "#12CBC4";
+        break;
+      case "YEARLY":
+        result = "#FDA7DF";
+        break;
+      default:
+        result = "grey";
+    }
   }
   return result;
 };

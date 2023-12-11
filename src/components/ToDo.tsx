@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
@@ -18,7 +18,7 @@ const Container = styled.div`
   margin: 2px 0;
 `;
 const Plus = styled.div`
-  transition: 0.1s opacity ease-in-out;
+  /* transition: 0.1s opacity ease-in-out; */
   opacity: 0;
 `;
 const Title = styled.div`
@@ -27,7 +27,7 @@ const Title = styled.div`
 `;
 const ViewBox = styled.div<{
   $cmp: boolean;
-  $editTg: boolean;
+  $editTg: number;
   $isComment: boolean;
 }>`
   width: 100%;
@@ -36,7 +36,7 @@ const ViewBox = styled.div<{
   grid-template-columns: 7% 83% 10%;
   align-items: center;
   border-radius: 5px;
-  transition: 0.1s box-shadow ease-in-out;
+  /* transition: 0.1s box-shadow ease-in-out; */
   & > div:nth-child(2) {
     border-left: ${(props) => !props.$isComment && "2px solid #454545"};
   }
@@ -128,9 +128,9 @@ const IsCheck = styled.div<{ $cmp?: boolean }>`
     color: #7a7a7a;
     border: 1.5px solid #7a7a7a;
     border-radius: 5px;
-    transition: 0.2s all ease-in-out;
+    /* transition: 0.2s all ease-in-out; */
     &:hover {
-      color: white;
+      color: #fff;
       border: 1.5px solid white;
     }
   }
@@ -158,7 +158,7 @@ export default function Todo({ todoData }: ITodoProps) {
   const { filterId } = useParams();
   const dispatch = useAppDispatch();
 
-  const editToggle = useAppSelector((state) => state.uiState.editTg);
+  const { editTg, themeTg } = useAppSelector((state) => state.uiState);
 
   const [toggle, setToggle] = useState<IToggleState>({
     add: false,
@@ -224,7 +224,7 @@ export default function Todo({ todoData }: ITodoProps) {
     <Container>
       <ViewBox
         $cmp={todoData.completed}
-        $editTg={editToggle}
+        $editTg={editTg}
         $isComment={!checkEmptyArr(todoData.comment)}
         onClick={onClickFold}
       >
@@ -253,7 +253,9 @@ export default function Todo({ todoData }: ITodoProps) {
                 <>
                   <h1>{todoData.text}</h1>
                   {todoData.option !== "NONE" && (
-                    <ContentOption $color={optionColor(todoData.option)}>
+                    <ContentOption
+                      $color={optionColor(todoData.option, themeTg)}
+                    >
                       {todoData.option}
                     </ContentOption>
                   )}
@@ -268,7 +270,7 @@ export default function Todo({ todoData }: ITodoProps) {
             </Title>
           </ContentBox>
           <ContentEditGrp>
-            {editToggle ? (
+            {editTg ? (
               <>
                 <div
                   onClick={(e: React.FormEvent<HTMLElement>) => {
@@ -297,7 +299,7 @@ export default function Todo({ todoData }: ITodoProps) {
           </ContentEditGrp>
         </ContentCt>
         <IsCheck onClick={onClickCmp}>
-          {checkEmptyArr(todoData.comment) && !editToggle && (
+          {checkEmptyArr(todoData.comment) && !editTg && (
             <i className="fa-solid fa-check" />
           )}
         </IsCheck>
