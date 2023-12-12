@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from "react";
 import styled, { keyframes } from "styled-components";
+import { useAppDispatch } from "../redux/hooks";
 import { RESET_PERIOD } from "../type";
-import { checkEmptyArr, dateInitialState, getLS, setLS } from "../utils";
+import {
+  checkEmptyArr,
+  dateInitialState,
+  getLS,
+  autoTodoReset,
+  setLS,
+} from "../utils";
 
 const blink = keyframes`
 to {
@@ -44,15 +51,15 @@ const Container = styled.div`
 `;
 
 export default function Time() {
+  const dispatch = useAppDispatch();
   const [time, setTime] = useState(0);
   useEffect(() => {
     const testInterval = setInterval(() => {
       setTime(new Date().getTime());
-
-      if (checkEmptyArr(getLS(RESET_PERIOD))) {
+      if (checkEmptyArr(getLS(RESET_PERIOD)) || !getLS(RESET_PERIOD)) {
         setLS(RESET_PERIOD, dateInitialState);
       } else {
-        // resetPeriod();
+        autoTodoReset(dispatch, getLS(RESET_PERIOD));
       }
 
       return () => clearInterval(testInterval);

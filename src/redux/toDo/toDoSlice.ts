@@ -54,6 +54,10 @@ const todoSlice = createSlice({
       unpack.hide(state, action.payload);
       unpack.sort(state);
     },
+    testReducer: (state, action: PayloadAction<TodoOptionType>) => {
+      unpack.testCmpReset(state, action.payload);
+      unpack.sort(state);
+    },
     resetToDos: () => [],
   },
 });
@@ -93,7 +97,14 @@ export const selFilteredTodos = createSelector(
   }
 );
 
-export const { addTodo, delTodo, fixTodo, cmpTodo, hideTodo, resetToDos } =
-  todoSlice.actions;
+export const {
+  addTodo,
+  delTodo,
+  fixTodo,
+  cmpTodo,
+  hideTodo,
+  resetToDos,
+  testReducer,
+} = todoSlice.actions;
 
 export default todoSlice.reducer;

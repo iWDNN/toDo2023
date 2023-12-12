@@ -1,6 +1,6 @@
 import uuid from "react-uuid";
-import { ITodoState } from "./redux/todo/todoSlice";
-import { DAILY, RESET_PERIOD, TodoOptionType } from "./type";
+import { ITodoState, testReducer } from "./redux/todo/todoSlice";
+import { DAILY, IResetPeriod, RESET_PERIOD, TodoOptionType } from "./type";
 
 export const todoAdapter = {
   getInitialState: (): ITodoState => {
@@ -181,7 +181,6 @@ export const unpack = {
       }
     }
   },
-
   reset(
     state: ITodoState[],
     payload: {
@@ -224,7 +223,27 @@ export const unpack = {
       }
     }
   },
+  testCmpReset: (
+    state: ITodoState[],
+    type: TodoOptionType,
+    repeat?: boolean
+  ) => {
+    for (const todo of state) {
+      for (const [key, value] of Object.entries(todo) as any) {
+        if (repeat) {
+          todo.completed = false;
+        }
 
+        if (key === "option" && value === type) {
+          todo.completed = false;
+        } else if (key === "comment" && !checkEmptyArr(value)) {
+          if (unpack.testCmpReset(todo.comment, type, (repeat = true))) {
+            return true;
+          }
+        }
+      }
+    }
+  },
   unpackReset() {
     this.itemArr = [];
     this.listArr = [];
@@ -259,50 +278,49 @@ export const dateInitialState = {
   },
 };
 
-// export const resetPeriod = (dispatch: Function) => {
-//   const today = new Date();
-//   //daily
-//   if (date.daily.value !== today.getDate()) {
-//     if (!date.daily.reset) {
-//       resetDaily();
-//       date.daily.value = today.getDate();
-//       date.daily.reset = true;
-//     }
-//   } else if (date.daily.value === today.getDate()) {
-//     date.daily.reset = false;
-//   }
-//   //monthly
-//   if (date.monthly.value !== today.getMonth()) {
-//     if (!date.monthly.reset) {
-//       resetMonth();
-//       date.monthly.value = today.getMonth();
-//       date.monthly.reset = true;
-//     }
-//   } else if (date.monthly.value === today.getMonth()) {
-//     date.monthly.reset = false;
-//   }
-//   //yearly
-//   if (date.yearly.value !== today.getFullYear()) {
-//     if (!date.yearly.reset) {
-//       resetYearly();
-//       date.yearly.value = today.getFullYear();
-//       date.yearly.reset = true;
-//     }
-//   } else if (date.yearly.value === today.getFullYear()) {
-//     date.yearly.reset = false;
-//   }
-//   //weekend
-//   if (date.weekend.value !== today.getDay()) {
-//     date.daily.reset = false;
-//   } else if (date.weekend.value === today.getDay()) {
-//     if (!date.weekend.reset) {
-//       resetWeekend();
-//       date.weekend.reset = true;
-//     }
-//   }
-// };
-
-// etc
+export const autoTodoReset = (dispatch: Function, getLSData: any) => {
+  const today = new Date();
+  //daily
+  if (getLSData.daily.value !== today.getDate()) {
+    if (!getLSData.daily.reset) {
+      dispatch(testReducer("DAILY"));
+      getLSData.daily.value = today.getDate();
+      getLSData.daily.reset = true;
+    }
+  } else if (getLSData.daily.value === today.getDate()) {
+    getLSData.daily.reset = false;
+  }
+  //monthly
+  if (getLSData.monthly.value !== today.getMonth()) {
+    if (!getLSData.monthly.reset) {
+      dispatch(testReducer("MONTHLY"));
+      getLSData.monthly.value = today.getMonth();
+      getLSData.monthly.reset = true;
+    }
+  } else if (getLSData.monthly.value === today.getMonth()) {
+    getLSData.monthly.reset = false;
+  }
+  //yearly
+  if (getLSData.yearly.value !== today.getFullYear()) {
+    if (!getLSData.yearly.reset) {
+      dispatch(testReducer("YEARLY"));
+      getLSData.yearly.value = today.getFullYear();
+      getLSData.yearly.reset = true;
+    }
+  } else if (getLSData.yearly.value === today.getFullYear()) {
+    getLSData.yearly.reset = false;
+  }
+  //weekend
+  // if (getLSData.weekend.value !== today.getDay()) {
+  //   getLSData.daily.reset = false;
+  // } else if (getLSData.weekend.value === today.getDay()) {
+  //   if (!getLSData.weekend.reset) {
+  //     dispatch(testReducer("WEEKEND"));
+  //     getLSData.weekend.reset = true;
+  //   }
+  // }
+  setLS(RESET_PERIOD, getLSData);
+};
 
 export const checkEmptyArr = (arr: any[]) => {
   return JSON.stringify(arr) === "[]";

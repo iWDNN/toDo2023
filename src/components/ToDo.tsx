@@ -8,6 +8,7 @@ import {
   hideTodo,
   ITodoState,
 } from "../redux/todo/todoSlice";
+import { setEditToggle } from "../redux/uiState/uiStateSlice";
 import { checkEmptyArr, optionColor } from "../utils";
 import Todos from "./Todos";
 import TodoTypeInput from "./TodoTypeInput";
@@ -218,6 +219,9 @@ export default function Todo({ todoData }: ITodoProps) {
     e.stopPropagation();
     if (window.confirm("test")) {
       dispatch(delTodo(todoData.id));
+    }
+    if (editTg === 1) {
+      dispatch(setEditToggle(0));
     }
   };
   return (

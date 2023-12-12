@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
@@ -11,6 +11,7 @@ import {
   ITodoState,
   resetToDos,
   selFilteredTodos,
+  testReducer,
 } from "../redux/todo/todoSlice";
 import { setEditToggle, setThemeToggle } from "../redux/uiState/uiStateSlice";
 import { daylist } from "../type";
@@ -209,6 +210,7 @@ export default function Main() {
     }
     return result;
   };
+
   return (
     <>
       <Header>

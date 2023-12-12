@@ -19,5 +19,9 @@ export type TodoOptionType =
 
 export type SetUiOptionType = "ADD" | "FIX" | "DEL" | "SET" | "RESET";
 
+export interface IResetPeriod {
+  weekendDay: number;
+}
+
 export const daylist = ["일", "월", "화", "수", "목", "금", "토"];
 export const filterlist = ["ALL", DAILY, WEEKEND, MONTHLY, YEARLY, NONE];
