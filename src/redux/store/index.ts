@@ -13,8 +13,8 @@ import todoSlice from "../todo/todoSlice";
 import uiStateSlice from "../uiState/uiStateSlice";
 
 const rootReducer = combineReducers({
-  todos: todoSlice,
-  uiState: uiStateSlice,
+  storeTodos: todoSlice,
+  storeUiState: uiStateSlice,
 });
 
 const persistConfig = {

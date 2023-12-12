@@ -52,7 +52,7 @@ const ToDoList = styled.div`
 export default function TodoPage() {
   const { filterId } = useParams();
 
-  const toDoRedux = useAppSelector((state) => state.todos);
+  const toDoRedux = useAppSelector((state) => state.storeTodos);
   const unpackFilteredArr = useSelector((state: ITodoState[]) =>
     selFilteredTodos(state, filterId?.toUpperCase())
   )[0];

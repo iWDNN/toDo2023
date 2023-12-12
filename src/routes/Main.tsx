@@ -177,9 +177,9 @@ export default function Main() {
   const { filterId } = useParams();
 
   const dispatch = useAppDispatch();
-  const { editTg, themeTg } = useAppSelector((state) => state.uiState);
+  const { editTg, themeTg } = useAppSelector((state) => state.storeUiState);
 
-  const reduxTodos = useAppSelector((state) => state.todos);
+  const reduxTodos = useAppSelector((state) => state.storeTodos);
   const filteredPercent = useSelector((state: ITodoState[]) =>
     selFilteredTodos(state, filterId?.toUpperCase())
   )[1];

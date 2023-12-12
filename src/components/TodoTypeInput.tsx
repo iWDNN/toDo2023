@@ -49,7 +49,7 @@ export default function TodoTypeInput({
   setTgFunction,
 }: IProps) {
   const dispatch = useAppDispatch();
-  const editToogle = useAppSelector((state) => state.uiState.editTg);
+  const editToogle = useAppSelector((state) => state.storeUiState.editTg);
   const [blurTg, setBlurTg] = useState(false);
 
   const { register, setFocus, handleSubmit } = useForm<IFormState>({

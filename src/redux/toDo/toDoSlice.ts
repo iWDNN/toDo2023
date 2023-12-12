@@ -62,7 +62,7 @@ const todoSlice = createSlice({
   },
 });
 
-const selTodos = (state: RootState) => state.todos;
+const selTodos = (state: RootState) => state.storeTodos;
 
 export const selTodoUnpackList = createSelector(selTodos, (todos) => {
   // complete 기능이 사용가능 한 가장 하위 투두의 배열

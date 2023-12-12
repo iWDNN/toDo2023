@@ -83,7 +83,7 @@ function Root() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
-  const themeToggle = useAppSelector((state) => state.uiState.themeTg);
+  const themeToggle = useAppSelector((state) => state.storeUiState.themeTg);
 
   useEffect(() => {
     pathname === "/" && navigate("todo/all");

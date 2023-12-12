@@ -159,7 +159,7 @@ export default function Todo({ todoData }: ITodoProps) {
   const { filterId } = useParams();
   const dispatch = useAppDispatch();
 
-  const { editTg, themeTg } = useAppSelector((state) => state.uiState);
+  const { editTg, themeTg } = useAppSelector((state) => state.storeUiState);
 
   const [toggle, setToggle] = useState<IToggleState>({
     add: false,
