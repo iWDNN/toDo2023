@@ -291,24 +291,24 @@ export const autoTodoReset = (dispatch: Function, getLSData: any) => {
     getLSData.daily.reset = false;
   }
   //monthly
-  if (getLSData.monthly.value !== today.getMonth()) {
-    if (!getLSData.monthly.reset) {
-      dispatch(testReducer("MONTHLY"));
-      getLSData.monthly.value = today.getMonth();
-      getLSData.monthly.reset = true;
-    }
-  } else if (getLSData.monthly.value === today.getMonth()) {
-    getLSData.monthly.reset = false;
-  }
+  // if (getLSData.monthly.value !== today.getMonth()) {
+  //   if (!getLSData.monthly.reset) {
+  //     dispatch(testReducer("MONTHLY"));
+  //     getLSData.monthly.value = today.getMonth();
+  //     getLSData.monthly.reset = true;
+  //   }
+  // } else if (getLSData.monthly.value === today.getMonth()) {
+  //   getLSData.monthly.reset = false;
+  // }
   //yearly
-  if (getLSData.yearly.value !== today.getFullYear()) {
-    if (!getLSData.yearly.reset) {
-      dispatch(testReducer("YEARLY"));
-      getLSData.yearly.value = today.getFullYear();
-      getLSData.yearly.reset = true;
-    }
-  } else if (getLSData.yearly.value === today.getFullYear()) {
-    getLSData.yearly.reset = false;
+  // if (getLSData.yearly.value !== today.getFullYear()) {
+  //   if (!getLSData.yearly.reset) {
+  //     dispatch(testReducer("YEARLY"));
+  //     getLSData.yearly.value = today.getFullYear();
+  //     getLSData.yearly.reset = true;
+  //   }
+  // } else if (getLSData.yearly.value === today.getFullYear()) {
+  //   getLSData.yearly.reset = false;
   }
   //weekend
   // if (getLSData.weekend.value !== today.getDay()) {

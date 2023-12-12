@@ -217,7 +217,7 @@ export default function Todo({ todoData }: ITodoProps) {
   };
   const onClickDel = (e: React.FormEvent<HTMLElement>) => {
     e.stopPropagation();
-    if (window.confirm("test")) {
+    if (window.confirm("제거하시겠습니까?")) {
       dispatch(delTodo(todoData.id));
     }
     if (editTg === 1) {
