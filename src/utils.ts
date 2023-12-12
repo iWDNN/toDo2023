@@ -309,7 +309,7 @@ export const autoTodoReset = (dispatch: Function, getLSData: any) => {
   //   }
   // } else if (getLSData.yearly.value === today.getFullYear()) {
   //   getLSData.yearly.reset = false;
-  }
+  // }
   //weekend
   // if (getLSData.weekend.value !== today.getDay()) {
   //   getLSData.daily.reset = false;
