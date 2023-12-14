@@ -56,12 +56,11 @@ export default function Time() {
   useEffect(() => {
     const testInterval = setInterval(() => {
       setTime(new Date().getTime());
-      if (checkEmptyArr(getLS(RESET_PERIOD)) || !getLS(RESET_PERIOD)) {
-        setLS(RESET_PERIOD, dateInitialState);
-      } else {
-        autoTodoReset(dispatch, getLS(RESET_PERIOD));
-      }
-
+      // if (checkEmptyArr(getLS(RESET_PERIOD)) || !getLS(RESET_PERIOD)) {
+      //   setLS(RESET_PERIOD, dateInitialState);
+      // } else {
+      //   autoTodoReset(dispatch, getLS(RESET_PERIOD));
+      // }
       return () => clearInterval(testInterval);
     }, 1000);
   }, []);
